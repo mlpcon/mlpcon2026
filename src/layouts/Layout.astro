@@ -1,0 +1,44 @@
+---
+import "../styles/global.css";
+import { Picture } from "astro:assets";
+import contardImg from "../assets/images/contard.png";
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title} | /mlp/ con 2026</title>
+	</head>
+	<body>
+		<div class="layout-wrapper">
+			<aside class="sidebar">
+				<Picture
+					src={contardImg}
+					alt="Contard Mascot"
+					width="150"
+					formats={["avif", "webp"]}
+					fallbackFormat="png"
+				/>
+				<h2>/mlp/ con 2026</h2>
+				<nav>
+					<ul>
+						<li><a href="/">Home</a></li>
+						<li><a href="/schedule">Schedule</a></li>
+						<li><a href="/vendors">Vendors</a></li>
+					</ul>
+				</nav>
+			</aside>
+
+			<main class="content">
+				<slot />
+			</main>
+		</div>
+	</body>
+</html>

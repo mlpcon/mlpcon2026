@@ -1,0 +1,84 @@
+@font-face {
+	font-family: Comic;
+	src:
+		local("Comic Sans MS"),
+		local("ComicSansMS"),
+		local("Comic Sans"),
+		local("ComicSans"),
+		url(/font/comic.woff2) format("woff2"),
+		url(/font/comic.woff) format("woff"),
+		url(/font/comic.ttf) format("truetype");
+}
+
+:root {
+	--color-blurple: #5865f2;
+	--color-grey: #99aab5;
+	--color-dark: #36393f;
+	--color-light: #fff;
+	--font-comic: Comic, cursive;
+}
+
+body {
+	font-family: var(--font-comic);
+	background-color: var(--color-dark);
+	color: var(--color-light);
+	margin: 0;
+}
+
+/* Layout structural rules */
+.layout-wrapper {
+	display: flex;
+	min-height: 100vh; /* Ensures the layout always stretches to the bottom of the screen */
+}
+
+/* Sidebar styling */
+.sidebar {
+	width: 200px; /* Fixed width for the menu */
+	background-color: var(--color-dark);
+	padding: 0 20px 20px 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center; /* Centers the text */
+	border-right: 2px solid #202225; /* Adds a slight border to separate from content */
+}
+
+.sidebar h2 {
+	text-align: center;
+	font-size: 1.5rem;
+}
+
+.sidebar img {
+	display: block;
+	margin-top: 0;
+}
+
+.sidebar nav ul {
+	list-style-type: none; /* Removes the bullet points */
+	padding: 0;
+	margin-top: 30px;
+	width: 100%;
+	text-align: center;
+}
+
+.sidebar nav ul li {
+	margin-bottom: 20px;
+}
+
+.sidebar nav ul li a {
+	color: var(--color-light);
+	text-decoration: none;
+	font-size: 1.2rem;
+	transition: color 0.2s ease;
+}
+
+.sidebar nav ul li a:hover {
+	color: var(--color-grey); /* Gives a nice hover effect using Contard grey */
+}
+
+/* Main Content styling */
+.content {
+	flex: 1; /* Tells the content area to fill all remaining horizontal space */
+	background-color: var(--color-blurple);
+	padding: 40px;
+	text-align: center; /* Centers welcome text */
+}
