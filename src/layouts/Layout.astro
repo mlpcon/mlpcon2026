@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { Picture } from "astro:assets";
 import contardImg from "../assets/images/contard.png";
 import { getMetadata } from "../lib/schedule";
+import { YEAR, NAME } from "../consts";
 
 interface Props {
 	title: string;
@@ -12,6 +13,35 @@ const { title } = Astro.props;
 const metadata = await getMetadata();
 const hasThread = metadata.threadId && metadata.threadId !== "0";
 const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
+
+const linkedData = {
+	"@context": {
+		"@base": "https://mlpcon.online/",
+		"@version": 1.1,
+		"@vocab": "https://schema.org",
+	},
+	"@graph": [
+		{
+			"@id": "https://mlpcon.online/",
+			"@type": "WebPage",
+			audience: {
+				"@type": "Audience",
+				audienceType: "horsefuckers",
+				alternateName: "pony fags",
+				description: "Anonymous nor/mlp/eople who frequent the /mlp/ board on 4chan.",
+				image: "https://derpicdn.net/img/view/2020/3/24/2304610.png",
+				name: "horsefuckers",
+			},
+			description: "An online con by and for the anons from /mlp/.",
+			keywords: "mlp, convention, brony, contard, 4chan, anonymous, mongolian basket weaving",
+			license: "https://creativecommons.org/licenses/by-nc/4.0/",
+			name: `${title} | ${NAME}`,
+			primaryImageOfPage: "https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+			timeRequired: "P5M",
+			typicalAgeRange: "18-",
+		},
+	],
+};
 ---
 
 <html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄>
@@ -21,39 +51,10 @@ const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
 
 		<link href="//iwtcits.com" rel="bestpony" type="text/html" />
 		<link href="//creativecommons.org/licenses/by-nc/4.0/" rel="code-license content-license license" type="text/html" />
-		<link href="//github.com/mlpcon/mlpcon2026" rel="code-repository" type="text/html" />
-		<script type="application/ld+json">
-			{
-				"@context": {
-					"@base": "https://mlpcon.online/",
-					"@version": 1.1,
-					"@vocab": "https://schema.org"
-				},
-				"@graph": [
-					{
-						"@id": "https://mlpcon.online/",
-						"@type": "WebPage",
-						"audience": {
-							"@type": "Audience",
-							"audienceType": "horsefuckers",
-							"alternateName": "pony fags",
-							"description": "Anonymous nor/mlp/eople who frequent the /mlp/ board on 4chan.",
-							"image": "https://derpicdn.net/img/view/2020/3/24/2304610.png",
-							"name": "horsefuckers"
-						},
-						"description": "An online con by and for the anons from /mlp/.",
-						"keywords": "mlp, convention, brony, contard, 4chan, anonymous, mongolian basket weaving",
-						"license": "https://creativecommons.org/licenses/by-nc/4.0/",
-						"name": "{title} | /mlp/ con 2026",
-						"primaryImageOfPage": "https://2024.mlpcon.online//MLPcon_2024.jpg",
-						"timeRequired": "P5M",
-						"typicalAgeRange": "18-"
-					}
-				]
-			}
-		</script>
+		<link href={`//github.com/mlpcon/mlpcon${YEAR}`} rel="code-repository" type="text/html" />
+		<script type="application/ld+json" set:html={JSON.stringify(linkedData)} />
 		<link href="favicon.png" rel="icon" sizes="269x269" type="image/png" />
-		<title>{title} | /mlp/ con 2026</title>
+		<title>{title} | {NAME}</title>
 	</head>
 	<body>
 		<div class="layout-wrapper">
@@ -61,7 +62,7 @@ const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
 				<a href="/" rel="home index">
 					<Picture src={contardImg} alt="Contard Mascot" width="150" formats={["avif", "webp"]} fallbackFormat="png" />
 				</a>
-				<h1>/mlp/ con 2026</h1>
+				<h1>{NAME}</h1>
 				<nav>
 					<ul>
 						<li><a href="/schedule">Schedule</a></li>

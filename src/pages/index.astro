@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { YEAR, NAME, DATES, DATES_ISO } from "../consts";
 import { getMetadata, type ScheduleMetadata } from "../lib/schedule";
 
 const metadata: ScheduleMetadata = await getMetadata();
@@ -7,7 +8,7 @@ const hasThread: boolean = !!(metadata.threadId && metadata.threadId !== "0");
 const hasPanelFormUrl: boolean = !!(metadata.panelFormUrl && metadata.panelFormUrl !== "");
 // const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl && metadata.vendorFormUrl !== "");
 const priorYearsStart: number = 2020;
-const priorYearsEnd: number = 2025;
+const priorYearsEnd: number = YEAR - 1;
 
 const threadUrl: string = hasThread ? `https://boards.4chan.org/mlp/thread/${metadata.threadId}` : "";
 const panelFormSnippet: string = hasPanelFormUrl
@@ -19,10 +20,10 @@ const threadSnippet: string = hasThread ? `Read more on <a href="${threadUrl}" r
 ---
 
 <Layout title="Home">
-	<h2>Welcome to /mlp/ con 2026</h2>
+	<h2>Welcome to {NAME}</h2>
 	<p>
 		<strong>
-			<time datetime="2026-07-10/P3D">July 10-12, 2026</time>
+			<time datetime={DATES_ISO}>{DATES}</time>
 		</strong>
 	</p>
 	<section>
