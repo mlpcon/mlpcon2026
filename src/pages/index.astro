@@ -59,7 +59,7 @@ const threadSnippet: string = hasThread ? `Read more on <a href="${threadUrl}" r
 				<li>Mares</li>
 			</ul>
 			<p>
-				{hasPanelFormUrl && <Fragment set:html={panelFormSnippet} />}
+				{(<Fragment set:html={panelFormSnippet} />)}
 			</p>
 		</div>
 	</section>
