@@ -31,7 +31,7 @@ const threadSnippet: string = hasThread ? `Read more on <a href="${threadUrl}" r
 			Anons from the /mlp/ board will get together to host their own online <del>shit show</del>
 			<ins>convention</ins>.
 		</p>
-		<p>{(<Fragment set:html={threadSnippet} />)}</p>
+		<p><Fragment set:html={threadSnippet} /></p>
 	</section>
 	<section>
 		<h3>How can I participate?</h3>
@@ -58,9 +58,7 @@ const threadSnippet: string = hasThread ? `Read more on <a href="${threadUrl}" r
 				<li>Use the non-CyTube link in <a href="/schedule">the schedule</a> to interact directly with the source stream or video</li>
 				<li>Mares</li>
 			</ul>
-			<p>
-				{(<Fragment set:html={panelFormSnippet} />)}
-			</p>
+			<p><Fragment set:html={panelFormSnippet} /></p>
 		</div>
 	</section>
 	<section>
