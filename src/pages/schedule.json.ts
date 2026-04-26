@@ -2,15 +2,21 @@ import { getSchedule } from "../lib/schedule";
 
 export async function GET() {
 	const fullSchedule = await getSchedule();
-	const now = new Date();
 
-	// Logic to filter fullSchedule based on 'now' and 'channel' goes here.
-	// For now, we'll return the full list to verify the connection.
+	// We'll map the raw sheet data into the specific JSON structure you want
+	const machineReadable = fullSchedule.map((entry) => ({
+		title: entry.title,
+		startTime: entry.startTime, // e.g., "2026-06-26T14:00:00-04:00"
+		duration: entry.duration, // e.g., "PT1H"
+		description: entry.description,
+		channel: entry.channel, // Useful for filtering on CyTube's end
+	}));
 
-	return new Response(JSON.stringify(fullSchedule), {
+	return new Response(JSON.stringify(machineReadable), {
 		status: 200,
 		headers: {
 			"Content-Type": "application/json",
+			"Access-Control-Allow-Origin": "*", // Allows CyTube to fetch this safely
 		},
 	});
 }

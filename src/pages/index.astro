@@ -1,8 +1,73 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { getMetadata } from "../lib/schedule";
+
+const metadata = await getMetadata();
+const hasThread = metadata.threadId && metadata.threadId !== "0";
+const hasPanelFormUrl = metadata.panelFormUrl && metadata.panelFormUrl !== "";
+const hasVendorFormUrl = metadata.vendorFormUrl && metadata.vendorFormUrl !== "";
+const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
+const threadSnippet = `Read more on <a href="${threadUrl}" rel="external noopener" target="_blank">the thread</a>.`;
+const panelFormSnippet = `If you have an idea for a panel, you can <a href="${metadata.panelFormUrl}" rel="external noopener" target="_blank">fill out the application form here.</a>`;
 ---
 
 <Layout title="Home">
-	<h1>Welcome to /mlp/ con 2026</h1>
-	<p>The premier online convention.</p>
+	<h2>Welcome to /mlp/ con 2026</h2>
+	<p>
+		<strong>
+			<time datetime="2026-07-10/P3D">July 10-12, 2026</time>
+		</strong>
+	</p>
+	<section>
+		<h3>What is it?</h3>
+		<p>
+			Anons from the /mlp/ board will get together to host their own online <del>shit show</del>
+			<ins>convention</ins>.
+			{hasThread && <Fragment set:html={threadSnippet} />}
+		</p>
+	</section>
+	<section>
+		<h3>How can I participate?</h3>
+		<div>
+			First, check <a href="/schedule.html">the schedule</a> and find things that look interesting to you. Then you can:
+			<ul>
+				{
+					hasThread && (
+						<li>
+							Post with other anons in
+							<a href={threadUrl} rel="external noopener" target="_blank">
+								the thread
+							</a>
+						</li>
+					)
+				}
+				<li>
+					Watch and/or shitpost on either <a href="//cytu.be/r/mlp-con" rel="external noopener" target="_blank">CyTube #1</a> or <a
+						href="//cytu.be/r/mlp-con2"
+						rel="external noopener"
+						target="_blank">CyTube #2</a
+					>
+				</li>
+				<li>Use the non-CyTube link in <a href="/schedule">the schedule</a> to interact directly with the source stream or video</li>
+				<li>Mares</li>
+			</ul>
+			<p>
+				{hasPanelFormUrl && <Fragment set:html={panelFormSnippet} />}
+			</p>
+		</div>
+	</section>
 </Layout>
+<style>
+	ul {
+		display: block;
+		width: fit-content;
+		margin: 1.5rem auto;
+		text-align: left;
+		padding-left: 2rem;
+	}
+
+	li {
+		display: list-item;
+		margin-bottom: 0.5rem;
+	}
+</style>

@@ -2,12 +2,16 @@
 import "../styles/global.css";
 import { Picture } from "astro:assets";
 import contardImg from "../assets/images/contard.png";
+import { getMetadata } from "../lib/schedule";
 
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props;
+const metadata = await getMetadata();
+const hasThread = metadata.threadId && metadata.threadId !== "0";
+const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
 ---
 
 <html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄>
@@ -40,7 +44,7 @@ const { title } = Astro.props;
 						"description": "An online con by and for the anons from /mlp/.",
 						"keywords": "mlp, convention, brony, contard, 4chan, anonymous, mongolian basket weaving",
 						"license": "https://creativecommons.org/licenses/by-nc/4.0/",
-						"name": "/mlp/ con online",
+						"name": "{title} | /mlp/ con 2026",
 						"primaryImageOfPage": "https://2024.mlpcon.online//MLPcon_2024.jpg",
 						"timeRequired": "P5M",
 						"typicalAgeRange": "18-"
@@ -57,11 +61,20 @@ const { title } = Astro.props;
 				<a href="/" rel="home index">
 					<Picture src={contardImg} alt="Contard Mascot" width="150" formats={["avif", "webp"]} fallbackFormat="png" />
 				</a>
-				<h2>/mlp/ con 2026</h2>
+				<h1>/mlp/ con 2026</h1>
 				<nav>
 					<ul>
 						<li><a href="/schedule">Schedule</a></li>
 						<li><a href="/vendors">Vendors</a></li>
+						{
+							hasThread && (
+								<li>
+									<a href={threadUrl} target="_blank" rel="noopener noreferrer">
+										Current Thread
+									</a>
+								</li>
+							)
+						}
 					</ul>
 				</nav>
 			</aside>
