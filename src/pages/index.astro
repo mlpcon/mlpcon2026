@@ -6,8 +6,8 @@ const metadata: ScheduleMetadata = await getMetadata();
 const hasThread: boolean = metadata.threadId && metadata.threadId !== "0" ? true : false;
 const hasPanelFormUrl: boolean = metadata.panelFormUrl && metadata.panelFormUrl !== "" ? true : false;
 // const hasVendorFormUrl: boolean = (metadata.vendorFormUrl && metadata.vendorFormUrl !== "") ? true : false;
-const priorYearsStart: number = 2025;
-const priorYearsEnd: number = 2020;
+const priorYearsStart: number = 2020;
+const priorYearsEnd: number = 2025;
 
 const threadUrl: string = hasThread ? `https://boards.4chan.org/mlp/thread/${metadata.threadId}` : "";
 const panelFormSnippet: string = hasPanelFormUrl
@@ -71,7 +71,7 @@ const threadSnippet: string = hasThread ? `Read more on <a href="${threadUrl}" r
 				{
 					years.map((year) => (
 						<li>
-							<a href={`//${year}.mlpcon.online/`}>/mlp/ con ${year}</a>
+							<a href={`//${year}.mlpcon.online/`}>/mlp/ con {year}</a>
 						</li>
 					))
 				}
