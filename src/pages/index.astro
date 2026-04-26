@@ -3,9 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import { getMetadata, type ScheduleMetadata } from "../lib/schedule";
 
 const metadata: ScheduleMetadata = await getMetadata();
-const hasThread: boolean = metadata.threadId && metadata.threadId !== "0" ? true : false;
-const hasPanelFormUrl: boolean = metadata.panelFormUrl && metadata.panelFormUrl !== "" ? true : false;
-// const hasVendorFormUrl: boolean = (metadata.vendorFormUrl && metadata.vendorFormUrl !== "") ? true : false;
+const hasThread: boolean = !!(metadata.threadId && metadata.threadId !== "0");
+const hasPanelFormUrl: boolean = !!(metadata.panelFormUrl && metadata.panelFormUrl !== "");
+// const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl && metadata.vendorFormUrl !== "");
 const priorYearsStart: number = 2020;
 const priorYearsEnd: number = 2025;
 
