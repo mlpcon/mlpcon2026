@@ -1,0 +1,35 @@
+---
+interface Props {
+	title: string;
+	startTime: string;
+	duration: string;
+	description: string;
+}
+
+const { title, startTime, duration, description } = Astro.props;
+---
+
+<article class="h-event schedule-card">
+	<h3 class="p-name">{title}</h3>
+
+	<div class="time-meta">
+		<time class="dt-start" datetime={startTime}>
+			{startTime}
+		</time>
+		<span class="p-duration">{duration}</span>
+	</div>
+
+	<p class="p-summary description">
+		{description}
+	</p>
+</article>
+
+<style>
+	.schedule-card {
+		border-left: 4px solid var(--color-blurple);
+		background: rgba(255, 255, 255, 0.05);
+		padding: 1rem;
+		margin-bottom: 1rem;
+	}
+	/* Add your Comic Sans styling here */
+</style>

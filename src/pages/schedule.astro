@@ -1,0 +1,119 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getSchedule, type ScheduleEntry } from "../lib/schedule";
+
+const schedule = await getSchedule();
+
+// Grouping logic using your new "Day" column
+const groupedSchedule = schedule.reduce(
+	(groups, entry) => {
+		const day = entry.day || "TBD";
+		if (!groups[day]) {
+			groups[day] = [];
+		}
+		groups[day].push(entry);
+		return groups;
+	},
+	{} as Record<string, ScheduleEntry[]>,
+);
+
+// We define the order explicitly since Object.keys can be unpredictable
+const dayOrder = ["Friday", "Saturday", "Sunday"];
+---
+
+<Layout title="Schedule">
+	<h1>Event Schedule</h1>
+	<p>All times will automatically convert to your local timezone.</p>
+
+	<div class="schedule-container">
+		{
+			dayOrder.map(
+				(dayName) =>
+					groupedSchedule[dayName] && (
+						<section class="day-group">
+							<header class="day-header">
+								<h2 class="p-name">{dayName}</h2>
+							</header>
+
+							{groupedSchedule[dayName].map((event) => (
+								<article class="h-event schedule-item">
+									<h3 class="p-name">{event.title}</h3>
+									<div class="meta">
+										<time class="dt-start" datetime={event.startTime}>
+											{event.startTime}
+										</time>
+										<span class="duration">{event.duration}</span>
+										<span class="location">Channel: {event.channel}</span>
+									</div>
+									<p class="p-summary">{event.description}</p>
+								</article>
+							))}
+						</section>
+					),
+			)
+		}
+	</div>
+
+	<script>
+		(function () {
+			function localizeTimes() {
+				const formatter = new Intl.DateTimeFormat([], {
+					hour: "numeric",
+					minute: "2-digit",
+					timeZoneName: "short",
+				});
+
+				document.querySelectorAll(".dt-start").forEach((time) => {
+					const timeEl = time as HTMLTimeElement;
+					if (timeEl.dateTime) {
+						// Handles space-separated date strings correctly
+						const parsedDate = new Date(timeEl.dateTime.replace(" ", "T"));
+						timeEl.textContent = formatter.format(parsedDate);
+					}
+				});
+			}
+
+			if (
+				typeof Intl !== "undefined" &&
+				typeof Intl.DateTimeFormat !== "undefined"
+			) {
+				localizeTimes();
+			}
+		})();
+	</script>
+</Layout>
+
+<style>
+	.day-header {
+		background-color: var(--color-blurple);
+		padding: 0.5rem 1.5rem;
+		margin: 2.5rem 0 1.5rem 0;
+		border-radius: 4px;
+	}
+	.day-header h2 {
+		margin: 0;
+		font-size: 1.8rem;
+		color: var(--color-light);
+	}
+	.schedule-item {
+		background: rgba(255, 255, 255, 0.05);
+		border-left: 4px solid var(--color-grey);
+		padding: 1.5rem;
+		margin-bottom: 1rem;
+		text-align: left;
+	}
+	.meta {
+		font-size: 0.95rem;
+		color: var(--color-grey);
+		margin-bottom: 0.75rem;
+		font-weight: bold;
+	}
+	.meta span,
+	.meta time {
+		margin-right: 20px;
+	}
+	.p-summary {
+		line-height: 1.6;
+		margin: 0;
+	}
+</style>

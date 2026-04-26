@@ -12,7 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.1.9"
+    "astro": "^6.1.9",
+    "csv-parse": "^6.2.1"
   },
   "devDependencies": {
     "prettier": "^3.8.3",
