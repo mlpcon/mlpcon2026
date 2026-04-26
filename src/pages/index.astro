@@ -64,18 +64,20 @@ const threadSnippet: string = hasThread ? `Read more on <a href="${threadUrl}" r
 		</div>
 	</section>
 	<section>
-		<h3>What happened in prior years?</h3>
+		<h3 id="what-happened-in-prior-years">What happened in prior years?</h3>
 		<div>
 			All the websites from prior years are archived here for your convenience!
-			<ul>
-				{
-					years.map((year) => (
-						<li>
-							<a href={`//${year}.mlpcon.online/`}>/mlp/ con {year}</a>
-						</li>
-					))
-				}
-			</ul>
+			<nav aria-labelledby="what-happened-in-prior-years">
+				<ul>
+					{
+						years.map((year) => (
+							<li>
+								<a href={`//${year}.mlpcon.online/`}>/mlp/ con {year}</a>
+							</li>
+						))
+					}
+				</ul>
+			</nav>
 		</div>
 	</section>
 </Layout>
