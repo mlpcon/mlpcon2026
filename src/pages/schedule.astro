@@ -2,6 +2,11 @@
 import Layout from "../layouts/Layout.astro";
 import { getSchedule, type ScheduleEntry } from "../lib/schedule";
 
+interface CytubeMetadata {
+	name: string;
+	url: string;
+}
+
 const schedule = await getSchedule();
 
 // Grouping logic using your new "Day" column
@@ -19,11 +24,22 @@ const groupedSchedule = schedule.reduce(
 
 // We define the order explicitly since Object.keys can be unpredictable
 const dayOrder = ["Friday", "Saturday", "Sunday"];
+
+function getCytubeUrl(channel: string): CytubeMetadata {
+	switch (channel) {
+		case "1":
+			return { name: "CyTube 1", url: "//cytu.be/r/mlp-con" };
+		case "2":
+			return { name: "CyTube 1", url: "//cytu.be/r/mlp-con2" };
+		default:
+			return { name: channel, url: `//cytu.be/r/${channel}` };
+	}
+}
 ---
 
 <Layout title="Schedule">
-	<h1>Event Schedule</h1>
-	<p>All times will automatically convert to your local timezone.</p>
+	<h2>Event Schedule</h2>
+	<p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p>
 
 	<div class="schedule-container">
 		{
@@ -32,22 +48,34 @@ const dayOrder = ["Friday", "Saturday", "Sunday"];
 					groupedSchedule[dayName] && (
 						<section class="day-group">
 							<header class="day-header">
-								<h2 class="p-name">{dayName}</h2>
+								<h3 class="p-name">{dayName}</h3>
 							</header>
 
-							{groupedSchedule[dayName].map((event) => (
-								<article class="h-event schedule-item">
-									<h3 class="p-name">{event.title}</h3>
-									<div class="meta">
-										<time class="dt-start" datetime={event.startTime}>
-											{event.startTime}
-										</time>
-										<span class="duration">{event.duration}</span>
-										<span class="location">Channel: {event.channel}</span>
-									</div>
-									<p class="p-summary">{event.description}</p>
-								</article>
-							))}
+							{groupedSchedule[dayName].map((event) => {
+								const cytube = getCytubeUrl(event.channel);
+
+								return (
+									<article class="h-event schedule-item">
+										<h4 class="p-name">{event.title}</h4>
+										<div class="meta">
+											<time class="dt-start" datetime={event.startTime}>
+												{event.startTime}
+											</time>
+											Duration:{" "}
+											<time class="dt-duration" datetime={event.duration}>
+												{event.duration}
+											</time>
+											Streaming to{" "}
+											<span class="location">
+												<a href={cytube.url} target="_blank" rel="external noopener">
+													{cytube.name}
+												</a>
+											</span>
+										</div>
+										<p class="p-summary">{event.description}</p>
+									</article>
+								);
+							})}
 						</section>
 					),
 			)
@@ -55,16 +83,18 @@ const dayOrder = ["Friday", "Saturday", "Sunday"];
 	</div>
 
 	<script>
+		interface Duration {
+			hours: number;
+			minutes: number;
+		}
+
 		(function () {
 			function localizeTimes() {
-				const formatter = new Intl.DateTimeFormat([], {
-					hour: "numeric",
-					minute: "2-digit",
-					timeZoneName: "short",
-				});
+				const formatter = new Intl.DateTimeFormat([], { day: "numeric", hour: "numeric", minute: "2-digit", month: "long", timeZoneName: "short", weekday: "long" });
 
 				document.querySelectorAll(".dt-start").forEach((time) => {
 					const timeEl = time as HTMLTimeElement;
+
 					if (timeEl.dateTime) {
 						// Handles space-separated date strings correctly
 						const parsedDate = new Date(timeEl.dateTime.replace(" ", "T"));
@@ -73,11 +103,30 @@ const dayOrder = ["Friday", "Saturday", "Sunday"];
 				});
 			}
 
-			if (
-				typeof Intl !== "undefined" &&
-				typeof Intl.DateTimeFormat !== "undefined"
-			) {
-				localizeTimes();
+			function formatDurations() {
+				function getDuration(isoString: string): Partial<Record<Intl.DurationFormatUnit, number>> {
+					const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
+					const matches = isoString.match(regex);
+
+					if (!matches) return { minutes: 0 };
+					return {
+						hours: parseInt(matches[1] || "0", 10),
+						minutes: parseInt(matches[2] || "0", 10),
+					};
+				}
+
+				const formatter = new Intl.DurationFormat("en", { style: "short" });
+				document.querySelectorAll(".dt-duration").forEach((duration) => {
+					const durationEl = duration as HTMLTimeElement;
+
+					if (durationEl.dateTime) durationEl.textContent = formatter.format(getDuration(durationEl.dateTime));
+				});
+			}
+
+			if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined") {
+				if (typeof Intl.DateTimeFormat !== "undefined") localizeTimes();
+
+				if (typeof Intl.DurationFormat !== "undefined") formatDurations();
 			}
 		})();
 	</script>
