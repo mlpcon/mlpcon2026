@@ -12,6 +12,9 @@ interface Props {
 const { title } = Astro.props;
 const metadata = await getMetadata();
 const hasThread = metadata.threadId && metadata.threadId !== "0";
+const hasPanelFormUrl: boolean = !!(metadata.panelFormUrl && metadata.panelFormUrl !== "");
+const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl && metadata.vendorFormUrl !== "");
+
 const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
 
 const linkedData = {
@@ -65,6 +68,24 @@ const linkedData = {
 				<h1>{NAME}</h1>
 				<nav>
 					<ul>
+						{
+							hasPanelFormUrl && (
+								<li>
+									<a href={metadata.panelFormUrl} target="_blank" rel="noopener noreferrer">
+										Host a Panel
+									</a>
+								</li>
+							)
+						}
+						{
+							hasVendorFormUrl && (
+								<li>
+									<a href={metadata.vendorFormUrl} target="_blank" rel="noopener noreferrer">
+										Be a Vendor
+									</a>
+								</li>
+							)
+						}
 						<li><a href="/schedule">Schedule</a></li>
 						<li><a href="/vendors">Vendors</a></li>
 						{
