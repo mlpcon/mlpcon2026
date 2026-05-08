@@ -30,7 +30,7 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 		case "1":
 			return { name: "CyTube 1", url: "//cytu.be/r/mlp-con" };
 		case "2":
-			return { name: "CyTube 1", url: "//cytu.be/r/mlp-con2" };
+			return { name: "CyTube 2", url: "//cytu.be/r/mlp-con2" };
 		default:
 			return { name: channel, url: `//cytu.be/r/${channel}` };
 	}
@@ -55,16 +55,20 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 								const cytube = getCytubeUrl(event.channel);
 
 								return (
-									<article class="h-event schedule-item">
-										<h4 class="p-name">{event.title}</h4>
+									<article class="h-event schedule-item" itemscope itemtype="https://schema.org/Event">
+										<h4 class="p-name" itemprop="name">
+											{event.title}
+										</h4>
 										<div class="meta">
-											<time class="dt-start" datetime={event.startTime}>
+											<time class="dt-start" datetime={event.startTime} itemprop="startDate">
 												{event.startTime}
 											</time>
 											Duration:{" "}
-											<time class="dt-duration" datetime={event.duration}>
+											<time class="dt-duration" datetime={event.duration} itemprop="duration">
 												{event.duration}
 											</time>
+										</div>
+										<div class="meta">
 											Streaming to{" "}
 											<span class="location">
 												<a href={cytube.url} target="_blank" rel="external noopener">
@@ -72,7 +76,9 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 												</a>
 											</span>
 										</div>
-										<p class="p-summary">{event.description}</p>
+										<p class="p-summary" itemprop="description">
+											{event.description}
+										</p>
 									</article>
 								);
 							})}
