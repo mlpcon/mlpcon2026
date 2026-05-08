@@ -4,7 +4,7 @@ import { Image } from "astro:assets";
 import { getVendors } from "../lib/vendors";
 
 // 1. Grab all images in the folder
-const imageImports = import.meta.glob<{ default: ImageMetadata }>("/src/assets/vendors/*.{jpeg,jpg,png,gif,webp}");
+const imageImports = import.meta.glob<{ default: ImageMetadata }>("/src/assets/images/vendors/*.{jpeg,jpg,png,gif,webp}");
 const allImagePaths = Object.keys(imageImports);
 
 const vendors = await getVendors();
@@ -14,32 +14,29 @@ function slugify(text: string) {
 	return text
 		.toString()
 		.toLowerCase()
-		.replace(/\s+/g, "-") // Replace spaces with hyphens
-		.replace(/[^\w\-]+/g, "") // Remove all non-word characters (apostrophes, exclamation points)
-		.replace(/\-\-+/g, "-") // Replace multiple hyphens with a single one
-		.replace(/^-+/, "") // Trim hyphens from the start
-		.replace(/-+$/, ""); // Trim hyphens from the end
+		.replace(/\s+/g, "-")
+		.replace(/[^\w\-]+/g, "")
+		.replace(/\-\-+/g, "-")
+		.replace(/^-+/, "")
+		.replace(/-+$/, "");
 }
 
 // 3. Helper to find all images for a specific vendor
 function getVendorImages(vendorName: string) {
 	const slug = slugify(vendorName);
 
-	// Find all file paths that contain the slug
 	const matchedPaths = allImagePaths.filter((path) => {
 		const filename = path.split("/").pop() || "";
-		// Matches "rockets-equine-outpost-1.png", "rockets-equine-outpost-2.jpg", etc.
 		return filename.startsWith(`${slug}-`);
 	});
 
-	// Sort them alphabetically so -1 comes before -2
 	matchedPaths.sort();
-
-	// Return the actual image promises for the <Image /> component
 	return matchedPaths.map((path) => imageImports[path]());
 }
 
-const placeholderImage = imageImports["/src/assets/vendors/placeholder.png"] ? imageImports["/src/assets/vendors/placeholder.png"]() : null;
+// Dynamically find the default placeholder image
+const placeholderPath = allImagePaths.find((path) => path.split("/").pop()?.startsWith("default."));
+const placeholderImage = placeholderPath ? imageImports[placeholderPath]() : null;
 ---
 
 <Layout title="Vendor Hall">
@@ -48,7 +45,6 @@ const placeholderImage = imageImports["/src/assets/vendors/placeholder.png"] ? i
 	<div class="vendor-grid">
 		{
 			vendors.map((vendor) => {
-				// Auto-discover the images for this specific vendor
 				const vendorImages = getVendorImages(vendor.name);
 
 				return (
@@ -64,10 +60,8 @@ const placeholderImage = imageImports["/src/assets/vendors/placeholder.png"] ? i
 
 						<div class="vendor-images">
 							{vendorImages.length > 0
-								? vendorImages.map((imagePromise) => (
-										<Image src={imagePromise} alt={`Artwork or product from ${vendor.name}`} width={400} height={300} class="vendor-img" />
-									))
-								: placeholderImage && <Image src={placeholderImage} alt="Vendor Image Coming Soon" width={400} height={300} class="vendor-img placeholder" />}
+								? vendorImages.map((imagePromise) => <Image src={imagePromise} alt={`Artwork or product from ${vendor.name}`} width={200} class="vendor-img" />)
+								: placeholderImage && <Image src={placeholderImage} alt="Vendor Image Coming Soon" width={200} class="vendor-img placeholder" />}
 						</div>
 
 						<div class="vendor-description" set:html={vendor.descriptionHtml} />
@@ -76,20 +70,151 @@ const placeholderImage = imageImports["/src/assets/vendors/placeholder.png"] ? i
 			})
 		}
 	</div>
+
+	<dialog id="lightbox" class="lightbox">
+		<button id="close-lightbox" aria-label="Close gallery" class="lightbox-close">&times;</button>
+		<img id="lightbox-image" src="" alt="Full screen view" />
+	</dialog>
 </Layout>
 
+<script>
+	// Astro runs this once the page loads to attach our click events
+	const lightbox = document.getElementById("lightbox") as HTMLDialogElement;
+	const lightboxImg = document.getElementById("lightbox-image") as HTMLImageElement;
+	const closeBtn = document.getElementById("close-lightbox");
+	const allVendorImages = document.querySelectorAll(".vendor-img");
+
+	// 1. Open the lightbox when any image is clicked
+	allVendorImages.forEach((img) => {
+		img.addEventListener("click", (e) => {
+			const target = e.target as HTMLImageElement;
+			// Copy the source of the clicked image into the massive popup image
+			lightboxImg.src = target.src;
+			lightbox.showModal();
+		});
+	});
+
+	// 2. Close when clicking the "X"
+	closeBtn?.addEventListener("click", () => {
+		lightbox.close();
+	});
+
+	// 3. Close when clicking the dark background outside the image
+	lightbox.addEventListener("click", (e) => {
+		if (e.target === lightbox) {
+			lightbox.close();
+		}
+	});
+</script>
+
 <style>
+	.vendor-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 2rem;
+		padding: 1rem;
+	}
+
+	.vendor-card {
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 12px;
+		padding: 1.5rem;
+		background: rgba(255, 255, 255, 0.02);
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
 	.vendor-images {
 		display: flex;
 		overflow-x: auto;
 		gap: 1rem;
 		scroll-snap-type: x mandatory;
 		padding-bottom: 1rem;
+		justify-content: center;
 	}
+
 	.vendor-img {
 		scroll-snap-align: start;
-		object-fit: cover;
-		border-radius: 8px;
 		flex-shrink: 0;
+		width: 100%;
+		max-width: 200px;
+		aspect-ratio: 4 / 3;
+		object-fit: contain;
+		border-radius: 8px;
+		background-color: rgba(0, 0, 0, 0.05);
+		cursor: pointer;
+		transition: transform 0.2s ease;
+	}
+
+	.vendor-img:hover {
+		transform: scale(1.05);
+	}
+
+	.vendor-description {
+		line-height: 1.6;
+		font-size: 0.95rem;
+	}
+
+	/* LIGHTBOX CSS */
+	.lightbox {
+		max-width: 100vw;
+		max-height: 100vh;
+		width: 100%;
+		height: 100%;
+		margin: auto;
+		padding: 0;
+		border: none;
+		background: transparent;
+		overflow: hidden;
+
+		/* Switch to Flexbox for perfect centering */
+		display: none;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Force the dialog to use flex when opened */
+	.lightbox[open] {
+		display: flex;
+	}
+
+	.lightbox::backdrop {
+		background: rgba(0, 0, 0, 0.9);
+		backdrop-filter: blur(8px);
+	}
+
+	.lightbox img {
+		display: block;
+		max-width: 95vw;
+		max-height: 95vh;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+		box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+		border-radius: 4px;
+	}
+
+	.lightbox-close {
+		position: fixed;
+		top: 20px;
+		right: 30px;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		width: 50px;
+		height: 50px;
+		color: white;
+		font-size: 30px;
+		cursor: pointer;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: background 0.2s;
+	}
+
+	.lightbox-close:hover {
+		background: rgba(255, 255, 255, 0.2);
 	}
 </style>
