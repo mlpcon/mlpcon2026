@@ -1,0 +1,95 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import { getVendors } from "../lib/vendors";
+
+// 1. Grab all images in the folder
+const imageImports = import.meta.glob<{ default: ImageMetadata }>("/src/assets/vendors/*.{jpeg,jpg,png,gif,webp}");
+const allImagePaths = Object.keys(imageImports);
+
+const vendors = await getVendors();
+
+// 2. Helper to turn "Rocket's Equine Outpost" into "rockets-equine-outpost"
+function slugify(text: string) {
+	return text
+		.toString()
+		.toLowerCase()
+		.replace(/\s+/g, "-") // Replace spaces with hyphens
+		.replace(/[^\w\-]+/g, "") // Remove all non-word characters (apostrophes, exclamation points)
+		.replace(/\-\-+/g, "-") // Replace multiple hyphens with a single one
+		.replace(/^-+/, "") // Trim hyphens from the start
+		.replace(/-+$/, ""); // Trim hyphens from the end
+}
+
+// 3. Helper to find all images for a specific vendor
+function getVendorImages(vendorName: string) {
+	const slug = slugify(vendorName);
+
+	// Find all file paths that contain the slug
+	const matchedPaths = allImagePaths.filter((path) => {
+		const filename = path.split("/").pop() || "";
+		// Matches "rockets-equine-outpost-1.png", "rockets-equine-outpost-2.jpg", etc.
+		return filename.startsWith(`${slug}-`);
+	});
+
+	// Sort them alphabetically so -1 comes before -2
+	matchedPaths.sort();
+
+	// Return the actual image promises for the <Image /> component
+	return matchedPaths.map((path) => imageImports[path]());
+}
+
+const placeholderImage = imageImports["/src/assets/vendors/placeholder.png"] ? imageImports["/src/assets/vendors/placeholder.png"]() : null;
+---
+
+<Layout title="Vendor Hall">
+	<h2>Vendor Hall</h2>
+
+	<div class="vendor-grid">
+		{
+			vendors.map((vendor) => {
+				// Auto-discover the images for this specific vendor
+				const vendorImages = getVendorImages(vendor.name);
+
+				return (
+					<article class="vendor-card">
+						<header>
+							<h3>{vendor.name}</h3>
+							{vendor.url && (
+								<a href={vendor.url} target="_blank" rel="noopener noreferrer">
+									Visit Website
+								</a>
+							)}
+						</header>
+
+						<div class="vendor-images">
+							{vendorImages.length > 0
+								? vendorImages.map((imagePromise) => (
+										<Image src={imagePromise} alt={`Artwork or product from ${vendor.name}`} width={400} height={300} class="vendor-img" />
+									))
+								: placeholderImage && <Image src={placeholderImage} alt="Vendor Image Coming Soon" width={400} height={300} class="vendor-img placeholder" />}
+						</div>
+
+						<div class="vendor-description" set:html={vendor.descriptionHtml} />
+					</article>
+				);
+			})
+		}
+	</div>
+</Layout>
+
+<style>
+	.vendor-images {
+		display: flex;
+		overflow-x: auto;
+		gap: 1rem;
+		scroll-snap-type: x mandatory;
+		padding-bottom: 1rem;
+	}
+	.vendor-img {
+		scroll-snap-align: start;
+		object-fit: cover;
+		border-radius: 8px;
+		flex-shrink: 0;
+	}
+</style>
