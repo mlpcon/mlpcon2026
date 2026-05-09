@@ -17,9 +17,9 @@ export async function getVendors(): Promise<Array<Vendor>> {
 
 	// Wrapped in Promise.all and using an async map to satisfy TypeScript
 	const vendors: Array<Vendor> = await Promise.all(
-		rows.map(async (row) => {
+		rows.map(async (row: string) => {
 			// Split by columns (Name, Description, URL)
-			const [name, description, url] = row.split(",");
+			const [name, description, url]: Array<string> = row.split(",");
 
 			return {
 				name: name?.trim() || "Unknown Vendor",
