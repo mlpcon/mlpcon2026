@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import Papa from "papaparse";
 
 export interface Vendor {
 	name: string;
@@ -12,20 +13,22 @@ export async function getVendors(): Promise<Array<Vendor>> {
 	const response: Response = await fetch(csvUrl);
 	const text: string = await response.text();
 
-	// Assuming a basic CSV parse for now (or use your preferred CSV parser)
-	const rows: Array<string> = text.split("\n").slice(1);
+	// PapaParse handles the quotes, commas, and newlines that break manual splitting
+	const parsedData: Papa.ParseResult<any> = Papa.parse(text, {
+		header: true,
+		skipEmptyLines: true,
+	});
+
+	const rows: Array<any> = parsedData.data as Array<any>;
 
 	// Wrapped in Promise.all and using an async map to satisfy TypeScript
 	const vendors: Array<Vendor> = await Promise.all(
-		rows.map(async (row: string) => {
-			// Split by columns (Name, Description, URL)
-			const [name, description, url]: Array<string> = row.split(",");
-
+		rows.map(async (row: any) => {
 			return {
-				name: name?.trim() || "Unknown Vendor",
-				// Await the marked parser to ensure it resolves to a string
-				descriptionHtml: description ? await marked.parse(description) : "",
-				url: url?.trim() || "",
+				name: row.name?.trim() || "Unknown Vendor",
+				// Now the description can safely contain commas and newlines
+				descriptionHtml: row.description ? await marked.parse(row.description) : "",
+				url: row.url?.trim() || "",
 			};
 		}),
 	);
