@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Ignore Windows NTFS Alternative Data Streams (Zone.Identifier files)
+*:Zone.Identifier
