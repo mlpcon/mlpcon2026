@@ -1,4 +1,4 @@
-import { parse } from "csv-parse/sync";
+import Papa from "papaparse";
 
 export interface ScheduleEntry {
 	title: string;
@@ -16,44 +16,59 @@ export interface ScheduleMetadata {
 	vendorFormUrl?: string;
 }
 
-export async function getSchedule(): Promise<ScheduleEntry[]> {
-	const SHEET_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ5qqmI3pg5pJEcyBfQtrFqMJ7Bb5nEDjOIIgfqZ5_L9KEjDdOWnN-7O4KyrOW4_KCXDIVh-VAClPP/pub?output=csv&cachebust=${Date.now()}`;
-
-	console.log("Fetching schedule from:", SHEET_URL); // ADD THIS
+export async function getSchedule(): Promise<Array<ScheduleEntry>> {
+	const SHEET_URL: string = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ5qqmI3pg5pJEcyBfQtrFqMJ7Bb5nEDjOIIgfqZ5_L9KEjDdOWnN-7O4KyrOW4_KCXDIVh-VAClPP/pub?output=csv&cachebust=${Date.now()}`;
+	console.log("Fetching schedule from:", SHEET_URL);
 
 	try {
-		const response = await fetch(SHEET_URL);
+		const response: Response = await fetch(SHEET_URL);
 
 		if (!response.ok) throw new Error("Google Sheet fetch failed");
-		const csvText = await response.text();
-		const records: any[] = parse(csvText, {
-			columns: true,
-			skip_empty_lines: true,
-			trim: true, // This ignores accidental spaces in your Google Sheet headers
+
+		const csvText: string = await response.text();
+
+		// Standardized with PapaParse
+		const parsedData: Papa.ParseResult<ScheduleEntry> = Papa.parse(csvText, {
+			header: true,
+			skipEmptyLines: true,
+			transformHeader: (header: string) => header.trim(),
 		});
-		return records as ScheduleEntry[];
+
+		return parsedData.data as Array<ScheduleEntry>;
 	} catch (err) {
-		console.error("Schedule Error:", err); // ADD THIS
-		return []; // Return empty array so the page at least loads
+		console.error("Schedule Error:", err);
+		return [];
 	}
 }
 
 export async function getMetadata(): Promise<ScheduleMetadata> {
-	const META_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ5qqmI3pg5pJEcyBfQtrFqMJ7Bb5nEDjOIIgfqZ5_L9KEjDdOWnN-7O4KyrOW4_KCXDIVh-VAClPP/pub?gid=625855329&output=csv&cachebust=${Date.now()}`;
+	const META_URL: string = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ5qqmI3pg5pJEcyBfQtrFqMJ7Bb5nEDjOIIgfqZ5_L9KEjDdOWnN-7O4KyrOW4_KCXDIVh-VAClPP/pub?gid=625855329&output=csv&cachebust=${Date.now()}`;
 
 	try {
-		const response = await fetch(META_URL);
+		const response: Response = await fetch(META_URL);
 
 		if (!response.ok) throw new Error("Metadata fetch failed");
-		const csvText = await response.text();
-		const records: { key: string; value: string }[] = parse(csvText, {
-			columns: true,
-			skip_empty_lines: true,
-			trim: true,
+
+		const csvText: string = await response.text();
+
+		// Standardized with PapaParse
+		const parsedData: Papa.ParseResult<{ key: string; value: string }> = Papa.parse(csvText, {
+			header: true,
+			skipEmptyLines: true,
+			transformHeader: (header: string) => header.trim(),
 		});
-		return records.reduce<ScheduleMetadata>((acc, { key, value }) => ({ ...acc, [key]: value }), {});
+
+		const records: Array<{ key: string; value: string }> = parsedData.data as Array<{ key: string; value: string }>;
+
+		return records.reduce<ScheduleMetadata>(
+			(acc: ScheduleMetadata, { key: key, value: value }) => ({
+				...acc,
+				[key?.trim()]: value?.trim(),
+			}),
+			{},
+		);
 	} catch (err) {
 		console.error("Metadata Error:", err);
-		return { threadId: "0", panelFormUrl: "", vendorFormUrl: "" }; // Fallback to avoid breaking the build
+		return { threadId: "0", panelFormUrl: "", vendorFormUrl: "" };
 	}
 }
