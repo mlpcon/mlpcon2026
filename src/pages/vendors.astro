@@ -24,22 +24,32 @@ function slugify(text: string): string {
 		.replace(/-+$/, "");
 }
 
-// 3. Helper to find all images for a specific vendor
-function getVendorImages(vendorName: string): Array<Promise<{ default: ImageMetadata }>> {
-	const slug: string = slugify(vendorName);
+// 3. Pre-resolve all vendor images here in the frontmatter
+const vendorDataWithImages: Array<Vendor & { images: Array<ImageMetadata> }> = await Promise.all(
+	vendors.map(async (vendor: Vendor) => {
+		const slug: string = slugify(vendor.name);
+		const matchedPaths: Array<string> = allImagePaths.filter((path: string) => {
+			const filename: string = path.split("/").pop() || "";
+			return filename.startsWith(`${slug}-`);
+		});
 
-	const matchedPaths: Array<string> = allImagePaths.filter((path: string) => {
-		const filename: string = path.split("/").pop() || "";
-		return filename.startsWith(`${slug}-`);
-	});
+		matchedPaths.sort();
 
-	matchedPaths.sort();
-	return matchedPaths.map((path) => imageImports[path]());
-}
+		// Await the imports here so the template gets ready-to-use metadata
+		const resolvedImages: Array<ImageMetadata> = await Promise.all(
+			matchedPaths.map(async (path: string) => {
+				const mod: { default: ImageMetadata } = await imageImports[path]();
+				return mod.default;
+			}),
+		);
 
-// Dynamically find the default placeholder image
-const placeholderPath: string | undefined = allImagePaths.find((path) => path.split("/").pop()?.startsWith("default."));
-const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholderPath ? imageImports[placeholderPath]() : null;
+		return { ...vendor, images: resolvedImages };
+	}),
+);
+
+// Pre-resolve the placeholder image
+const placeholderPath: string | undefined = allImagePaths.find((path: string) => path.split("/").pop()?.startsWith("default."));
+const placeholderMetadata: ImageMetadata | null = placeholderPath ? (await imageImports[placeholderPath]()).default : null;
 ---
 
 <Layout title="Vendor Hall">
@@ -47,30 +57,37 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 
 	<div class="vendor-grid">
 		{
-			vendors.map((vendor: Vendor) => {
-				const vendorImages = getVendorImages(vendor.name);
+			vendorDataWithImages.map((vendor) => (
+				<article class="vendor-card" itemscope itemtype="https://schema.org/Organization">
+					<header>
+						<h3 itemprop="name">{vendor.name}</h3>
+						{vendor.url && (
+							<a href={vendor.url} itemprop="url" target="_blank" rel="noopener noreferrer">
+								Visit Website
+							</a>
+						)}
+					</header>
 
-				return (
-					<article class="vendor-card">
-						<header>
-							<h3>{vendor.name}</h3>
-							{vendor.url && (
-								<a href={vendor.url} target="_blank" rel="noopener noreferrer">
-									Visit Website
-								</a>
-							)}
-						</header>
+					<div class="vendor-images" itemprop="makesOffer" itemscope itemtype="https://schema.org/Offer">
+						{vendor.images.length > 0
+							? vendor.images.map((imgMetadata: ImageMetadata) => (
+									<Image
+										src={imgMetadata}
+										alt={`Artwork or product from ${vendor.name}`}
+										width={200}
+										class="vendor-img"
+										itemprop="image"
+										data-full={imgMetadata.src}
+									/>
+								))
+							: placeholderMetadata && (
+									<Image src={placeholderMetadata} alt="Image Missing" width={200} class="vendor-img placeholder" data-full={placeholderMetadata.src} />
+								)}
+					</div>
 
-						<div class="vendor-images">
-							{vendorImages.length > 0
-								? vendorImages.map((imagePromise) => <Image src={imagePromise} alt={`Artwork or product from ${vendor.name}`} width={200} class="vendor-img" />)
-								: placeholderImage && <Image src={placeholderImage} alt="Vendor Image Coming Soon" width={200} class="vendor-img placeholder" />}
-						</div>
-
-						<div class="vendor-description" set:html={vendor.descriptionHtml} />
-					</article>
-				);
-			})
+					<div class="vendor-description" itemprop="description" set:html={vendor.descriptionHtml} />
+				</article>
+			))
 		}
 	</div>
 
@@ -81,32 +98,25 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 </Layout>
 
 <script>
-	// Astro runs this once the page loads to attach our click events
 	const lightbox: HTMLDialogElement = document.getElementById("lightbox") as HTMLDialogElement;
 	const lightboxImg: HTMLImageElement = document.getElementById("lightbox-image") as HTMLImageElement;
 	const closeBtn: HTMLButtonElement = document.getElementById("close-lightbox") as HTMLButtonElement;
-	const allVendorImages: NodeListOf<HTMLImageElement> = document.querySelectorAll(".vendor-img");
+	const allVendorImages: NodeListOf<HTMLImageElement> = document.querySelectorAll(".vendor-img") as NodeListOf<HTMLImageElement>;
 
-	// 1. Open the lightbox when any image is clicked
 	allVendorImages.forEach((img: HTMLImageElement) => {
-		img.addEventListener("click", (e: PointerEvent) => {
-			const target: HTMLImageElement = e.target as HTMLImageElement;
-			// Copy the source of the clicked image into the massive popup image
-			lightboxImg.src = target.src;
-			lightbox.showModal();
+		img.addEventListener("click", () => {
+			const fullSizeUrl: string | null = img.getAttribute("data-full");
+
+			if (fullSizeUrl) {
+				lightboxImg.src = fullSizeUrl;
+				lightbox.showModal();
+			}
 		});
 	});
 
-	// 2. Close when clicking the "X"
-	closeBtn?.addEventListener("click", () => {
-		lightbox.close();
-	});
-
-	// 3. Close when clicking the dark background outside the image
+	closeBtn?.addEventListener("click", () => lightbox.close());
 	lightbox.addEventListener("click", (e: PointerEvent) => {
-		if (e.target === lightbox) {
-			lightbox.close();
-		}
+		if (e.target === lightbox) lightbox.close();
 	});
 </script>
 
@@ -117,7 +127,6 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		gap: 2rem;
 		padding: 1rem;
 	}
-
 	.vendor-card {
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 12px;
@@ -127,7 +136,6 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		flex-direction: column;
 		gap: 1rem;
 	}
-
 	.vendor-images {
 		display: flex;
 		overflow-x: auto;
@@ -136,7 +144,6 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		padding-bottom: 1rem;
 		justify-content: center;
 	}
-
 	.vendor-img {
 		scroll-snap-align: start;
 		flex-shrink: 0;
@@ -149,17 +156,13 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		cursor: pointer;
 		transition: transform 0.2s ease;
 	}
-
 	.vendor-img:hover {
 		transform: scale(1.05);
 	}
-
 	.vendor-description {
 		line-height: 1.6;
 		font-size: 0.95rem;
 	}
-
-	/* LIGHTBOX CSS */
 	.lightbox {
 		max-width: 100vw;
 		max-height: 100vh;
@@ -170,23 +173,17 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		border: none;
 		background: transparent;
 		overflow: hidden;
-
-		/* Switch to Flexbox for perfect centering */
 		display: none;
 		align-items: center;
 		justify-content: center;
 	}
-
-	/* Force the dialog to use flex when opened */
 	.lightbox[open] {
 		display: flex;
 	}
-
 	.lightbox::backdrop {
 		background: rgba(0, 0, 0, 0.9);
 		backdrop-filter: blur(8px);
 	}
-
 	.lightbox img {
 		display: block;
 		max-width: 95vw;
@@ -197,7 +194,6 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
 		border-radius: 4px;
 	}
-
 	.lightbox-close {
 		position: fixed;
 		top: 20px;
@@ -216,7 +212,6 @@ const placeholderImage: Promise<{ default: ImageMetadata }> | null = placeholder
 		justify-content: center;
 		transition: background 0.2s;
 	}
-
 	.lightbox-close:hover {
 		background: rgba(255, 255, 255, 0.2);
 	}
