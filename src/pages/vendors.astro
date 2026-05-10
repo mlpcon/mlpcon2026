@@ -61,11 +61,6 @@ const placeholderMetadata: ImageMetadata | null = placeholderPath ? (await image
 				<article class="vendor-card" itemscope itemtype="https://schema.org/Organization">
 					<header>
 						<h3 itemprop="name">{vendor.name}</h3>
-						{vendor.url && (
-							<a href={vendor.url} itemprop="url" target="_blank" rel="noopener noreferrer">
-								Visit Website
-							</a>
-						)}
 					</header>
 
 					<div class="vendor-images" itemprop="makesOffer" itemscope itemtype="https://schema.org/Offer">
@@ -84,7 +79,13 @@ const placeholderMetadata: ImageMetadata | null = placeholderPath ? (await image
 									<Image src={placeholderMetadata} alt="Image Missing" width={200} class="vendor-img placeholder" data-full={placeholderMetadata.src} />
 								)}
 					</div>
-
+					<div>
+						{vendor.url && (
+							<a href={vendor.url} itemprop="url" target="_blank" rel="noopener noreferrer">
+								Visit Website
+							</a>
+						)}
+					</div>
 					<div class="vendor-description" itemprop="description" set:html={vendor.descriptionHtml} />
 				</article>
 			))
