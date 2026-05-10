@@ -2,20 +2,25 @@
 import "../styles/global.css";
 import { Picture } from "astro:assets";
 import contardImg from "../assets/images/contard.png";
-import { getMetadata } from "../lib/schedule";
+import { getMetadata, type ScheduleMetadata } from "../lib/schedule";
 import { YEAR, NAME } from "../consts";
 
 interface Props {
 	title: string;
+	description?: string;
+	image?: string;
 }
 
-const { title } = Astro.props;
-const metadata = await getMetadata();
-const hasThread = metadata.threadId && metadata.threadId !== "0";
+const { title, description = "An online con by and for the anons from /mlp/.", image = "/images/mlpcon26.png" }: Props = Astro.props;
+const canonicalUrl: URL = new URL(Astro.url.pathname, Astro.site || Astro.url);
+const metadata: ScheduleMetadata = await getMetadata();
+const hasThread: boolean = !!(metadata.threadId && metadata.threadId !== "0");
 const hasPanelFormUrl: boolean = !!(metadata.panelFormUrl && metadata.panelFormUrl !== "");
 const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl && metadata.vendorFormUrl !== "");
 
-const threadUrl = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
+const imageUrl: URL = new URL(image, Astro.url);
+const name: string = `${title} | ${NAME}`;
+const threadUrl: string = `https://boards.4chan.org/mlp/thread/${metadata.threadId}`;
 
 const linkedData = {
 	"@context": {
@@ -25,7 +30,7 @@ const linkedData = {
 	},
 	"@graph": [
 		{
-			"@id": "https://mlpcon.online/",
+			"@id": canonicalUrl,
 			"@type": "WebPage",
 			audience: {
 				"@type": "Audience",
@@ -35,29 +40,48 @@ const linkedData = {
 				image: "https://derpicdn.net/img/view/2020/3/24/2304610.png",
 				name: "horsefuckers",
 			},
-			description: "An online con by and for the anons from /mlp/.",
+			description: description,
 			keywords: "mlp, convention, brony, contard, 4chan, anonymous, mongolian basket weaving",
 			license: "https://creativecommons.org/licenses/by-nc/4.0/",
-			name: `${title} | ${NAME}`,
-			primaryImageOfPage: "https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+			name: name,
+			primaryImageOfPage: imageUrl,
 			timeRequired: "P5M",
 			typicalAgeRange: "18-",
+			url: canonicalUrl,
+			genre: "Convention",
 		},
 	],
 };
 ---
 
+<!doctype html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="canonical" href={canonicalUrl} />
+		<meta name="title" content={name} />
+		<meta name="description" content={description} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:title" content={name} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={imageUrl} />
+		<meta property="og:image:alt" content="/mlp/ con 2026" />
+
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={canonicalUrl} />
+		<meta property="twitter:title" content={name} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={imageUrl} />
 
 		<link href="//iwtcits.com" rel="bestpony" type="text/html" />
 		<link href="//creativecommons.org/licenses/by-nc/4.0/" rel="code-license content-license license" type="text/html" />
 		<link href={`//github.com/mlpcon/mlpcon${YEAR}`} rel="code-repository" type="text/html" />
 		<script type="application/ld+json" set:html={JSON.stringify(linkedData)} />
 		<link href="favicon.png" rel="icon" sizes="269x269" type="image/png" />
-		<title>{title} | {NAME}</title>
+		<title>{name}</title>
 	</head>
 	<body>
 		<div class="layout-wrapper">

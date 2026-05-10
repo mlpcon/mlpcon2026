@@ -52,7 +52,9 @@ const placeholderPath: string | undefined = allImagePaths.find((path: string) =>
 const placeholderMetadata: ImageMetadata | null = placeholderPath ? (await imageImports[placeholderPath]()).default : null;
 ---
 
-<Layout title="Vendors">
+<Layout
+	title="Vendors"
+	description="Check out all the great vendors at /mlp/ con 2026! Our vendors bring the best of the fandom right to your screen. Browse through their offerings and support your favorite creators!">
 	<h2>Vendors</h2>
 
 	<div class="vendor-grid">
