@@ -15,7 +15,19 @@
 	--color-grey: #99aab5;
 	--color-dark: #36393f;
 	--color-light: #fff;
+	--color-link: #ffd700;
 	--font-comic: Comic, cursive;
+}
+
+a {
+	color: var(--color-link);
+	transition: all 0.2s ease;
+}
+
+a:hover {
+	color: var(--color-light);
+	border-bottom-color: var(--color-light);
+	text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 body {
