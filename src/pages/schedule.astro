@@ -7,23 +7,22 @@ interface CytubeMetadata {
 	url: string;
 }
 
-const schedule = await getSchedule();
+const schedule: Array<ScheduleEntry> = await getSchedule();
 
 // Grouping logic using your new "Day" column
-const groupedSchedule = schedule.reduce(
-	(groups, entry) => {
-		const day = entry.day || "TBD";
-		if (!groups[day]) {
-			groups[day] = [];
-		}
+const groupedSchedule: Record<string, Array<ScheduleEntry>> = schedule.reduce(
+	(groups: Record<string, Array<ScheduleEntry>>, entry: ScheduleEntry) => {
+		const day: string = entry.day || "TBD";
+
+		if (!groups[day]) groups[day] = [];
 		groups[day].push(entry);
 		return groups;
 	},
-	{} as Record<string, ScheduleEntry[]>,
+	{} as Record<string, Array<ScheduleEntry>>,
 );
 
 // We define the order explicitly since Object.keys can be unpredictable
-const dayOrder = ["Friday", "Saturday", "Sunday"];
+const dayOrder: Array<string> = ["Friday", "Saturday", "Sunday"];
 
 function getCytubeUrl(channel: string): CytubeMetadata {
 	switch (channel) {
@@ -42,21 +41,22 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 	<p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p>
 	<p>
 		See the schedule in <a href="//docs.google.com/spreadsheets/d/1RYx3sVxTTk8YV-xpkJSsL1aqW0I3uF6yBACnnZGZExw/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer"
-			>spreadsheet form here.</a>
+			>spreadsheet form here.</a
+		>
 	</p>
 
 	<div class="schedule-container">
 		{
 			dayOrder.map(
-				(dayName) =>
+				(dayName: string) =>
 					groupedSchedule[dayName] && (
 						<section class="day-group">
 							<header class="day-header">
 								<h3 class="p-name">{dayName}</h3>
 							</header>
 
-							{groupedSchedule[dayName].map((event) => {
-								const cytube = getCytubeUrl(event.channel);
+							{groupedSchedule[dayName].map((event: ScheduleEntry) => {
+								const cytube: CytubeMetadata = getCytubeUrl(event.channel);
 
 								return (
 									<article class="h-event schedule-item" itemscope itemtype="https://schema.org/Event">
@@ -98,25 +98,32 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 			minutes: number;
 		}
 
-		(function () {
-			function localizeTimes() {
-				const formatter = new Intl.DateTimeFormat([], { day: "numeric", hour: "numeric", minute: "2-digit", month: "long", timeZoneName: "short", weekday: "long" });
+		(function (): void {
+			function localizeTimes(): void {
+				const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
+					day: "numeric",
+					hour: "numeric",
+					minute: "2-digit",
+					month: "long",
+					timeZoneName: "short",
+					weekday: "long",
+				});
 
-				document.querySelectorAll(".dt-start").forEach((time) => {
-					const timeEl = time as HTMLTimeElement;
+				document.querySelectorAll(".dt-start").forEach((time: Element) => {
+					const timeEl: HTMLTimeElement = time as HTMLTimeElement;
 
 					if (timeEl.dateTime) {
 						// Handles space-separated date strings correctly
-						const parsedDate = new Date(timeEl.dateTime.replace(" ", "T"));
+						const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
 						timeEl.textContent = formatter.format(parsedDate);
 					}
 				});
 			}
 
-			function formatDurations() {
+			function formatDurations(): void {
 				function getDuration(isoString: string): Partial<Record<Intl.DurationFormatUnit, number>> {
-					const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
-					const matches = isoString.match(regex);
+					const regex: RegExp = /PT(?:(\d+)H)?(?:(\d+)M)?/;
+					const matches: RegExpMatchArray | null = isoString.match(regex);
 
 					if (!matches) return { minutes: 0 };
 					return {
@@ -125,9 +132,9 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 					};
 				}
 
-				const formatter = new Intl.DurationFormat("en", { style: "short" });
-				document.querySelectorAll(".dt-duration").forEach((duration) => {
-					const durationEl = duration as HTMLTimeElement;
+				const formatter: Intl.DurationFormat = new Intl.DurationFormat("en", { style: "short" });
+				document.querySelectorAll(".dt-duration").forEach((duration: Element) => {
+					const durationEl: HTMLTimeElement = duration as HTMLTimeElement;
 
 					if (durationEl.dateTime) durationEl.textContent = formatter.format(getDuration(durationEl.dateTime));
 				});
