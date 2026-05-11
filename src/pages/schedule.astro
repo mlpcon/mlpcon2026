@@ -132,7 +132,7 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 					};
 				}
 
-				const formatter: Intl.DurationFormat = new Intl.DurationFormat("en", { style: "short" });
+				const formatter: Intl.DurationFormat = new Intl.DurationFormat("en", { style: "long" });
 				document.querySelectorAll(".dt-duration").forEach((duration: Element) => {
 					const durationEl: HTMLTimeElement = duration as HTMLTimeElement;
 
