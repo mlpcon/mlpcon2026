@@ -68,7 +68,7 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 												{event.startTime}
 											</time>
 											Duration:{" "}
-											<time class="dt-duration" datetime={event.duration} itemprop="duration">
+											<time class="dt-duration" datetime={event.duration.toString()} itemprop="duration">
 												{event.duration}
 											</time>
 										</div>
