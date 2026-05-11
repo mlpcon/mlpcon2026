@@ -24,10 +24,7 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 		const response: Response = await fetch(SHEET_URL);
 
 		if (!response.ok) throw new Error("Google Sheet fetch failed");
-
 		const csvText: string = await response.text();
-
-		// Standardized with PapaParse
 		const parsedData: Papa.ParseResult<ScheduleEntry> = Papa.parse(csvText, {
 			header: true,
 			skipEmptyLines: true,
