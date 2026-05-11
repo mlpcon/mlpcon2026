@@ -32,7 +32,7 @@ export class ScheduleDuration {
 			this.minutes = durationOrHours.minutes;
 		} else if (typeof durationOrHours === "string") {
 			const regex: RegExp = /^PT(?:(\d+)H)?(?:(\d+)M)?$/;
-			const matches: RegExpMatchArray | null = durationOrHours.match(regex);
+			const matches: RegExpMatchArray = durationOrHours.match(regex) as RegExpMatchArray;
 
 			if (matches) {
 				this.hours = parseInt(matches[1] || "0", 10);
