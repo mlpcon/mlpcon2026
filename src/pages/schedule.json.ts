@@ -1,4 +1,4 @@
-import { getSchedule } from "../lib/schedule";
+import { getSchedule } from "../lib/WebMaster/schedule";
 
 export async function GET() {
 	const fullSchedule = await getSchedule();
