@@ -9,12 +9,12 @@ interface CytubeMetadata {
 
 const schedule: Array<ScheduleEntry> = await getSchedule();
 
-// Grouping logic using your new "Day" column
 const groupedSchedule: Record<string, Array<ScheduleEntry>> = schedule.reduce(
 	(groups: Record<string, Array<ScheduleEntry>>, entry: ScheduleEntry) => {
 		const day: string = entry.day || "TBD";
 
-		if (!groups[day]) groups[day] = [];
+		if (!groups[day]) 
+			groups[day] = [];
 		groups[day].push(entry);
 		return groups;
 	},
@@ -40,9 +40,7 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 	<h2>Event Schedule</h2>
 	<p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p>
 	<p>
-		See the schedule in <a href="//docs.google.com/spreadsheets/d/1RYx3sVxTTk8YV-xpkJSsL1aqW0I3uF6yBACnnZGZExw/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer"
-			>spreadsheet form here.</a
-		>
+		See the schedule in <a href="//docs.google.com/spreadsheets/d/1RYx3sVxTTk8YV-xpkJSsL1aqW0I3uF6yBACnnZGZExw/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">spreadsheet form here.</a>
 	</p>
 
 	<div class="schedule-container">
@@ -67,13 +65,13 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 											<time class="dt-start" datetime={event.startTime} itemprop="startDate">
 												{event.startTime}
 											</time>
-											Duration:{" "}
+											Duration:
 											<time class="dt-duration" datetime={event.duration.toString()} itemprop="duration">
 												{event.duration}
 											</time>
 										</div>
 										<div class="meta">
-											Streaming to{" "}
+											Streaming to
 											<span class="location">
 												<a href={cytube.url} itemprop="url" target="_blank" rel="external noopener">
 													{cytube.name}
@@ -118,7 +116,8 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 					const regex: RegExp = /PT(?:(\d+)H)?(?:(\d+)M)?/;
 					const matches: RegExpMatchArray | null = isoString.match(regex);
 
-					if (!matches) return { minutes: 0 };
+					if (!matches) 
+						return { minutes: 0 };
 					return {
 						hours: parseInt(matches[1] || "0", 10),
 						minutes: parseInt(matches[2] || "0", 10),
@@ -129,14 +128,17 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 				document.querySelectorAll(".dt-duration").forEach((duration: Element) => {
 					const durationEl: HTMLTimeElement = duration as HTMLTimeElement;
 
-					if (durationEl.dateTime) durationEl.textContent = formatter.format(getDuration(durationEl.dateTime));
+					if (durationEl.dateTime) 
+						durationEl.textContent = formatter.format(getDuration(durationEl.dateTime));
 				});
 			}
 
 			if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined") {
-				if (typeof Intl.DateTimeFormat !== "undefined") localizeTimes();
+				if (typeof Intl.DateTimeFormat !== "undefined") 
+					localizeTimes();
 
-				if (typeof Intl.DurationFormat !== "undefined") formatDurations();
+				if (typeof Intl.DurationFormat !== "undefined") 
+					formatDurations();
 			}
 		})();
 	</script>

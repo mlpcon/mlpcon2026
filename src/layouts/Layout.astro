@@ -94,31 +94,19 @@ const linkedData = {
 					<ul>
 						{
 							hasPanelFormUrl && (
-								<li>
-									<a href={metadata.panelFormUrl?.toString()} target="_blank" rel="noopener noreferrer">
-										Host a Panel
-									</a>
-								</li>
+								<li><a href={metadata.panelFormUrl?.toString()} target="_blank" rel="noopener noreferrer">Host a Panel</a></li>
 							)
 						}
 						{
 							hasVendorFormUrl && (
-								<li>
-									<a href={metadata.vendorFormUrl?.toString()} target="_blank" rel="noopener noreferrer">
-										Be a Vendor
-									</a>
-								</li>
+								<li><a href={metadata.vendorFormUrl?.toString()} target="_blank" rel="noopener noreferrer">Be a Vendor</a></li>
 							)
 						}
 						<li><a href="/schedule">Schedule</a></li>
 						<li><a href="/vendors">Vendors</a></li>
 						{
 							hasThread && (
-								<li>
-									<a href={threadUrl} target="_blank" rel="noopener noreferrer">
-										Current Thread
-									</a>
-								</li>
+								<li><a href={threadUrl} target="_blank" rel="noopener noreferrer">Current Thread</a></li>
 							)
 						}
 					</ul>

@@ -22,7 +22,7 @@ export async function getVendors(): Promise<Array<Vendor>> {
 				name: row.name?.trim() || "Unknown Vendor",
 				// Now the description can safely contain commas and newlines
 				descriptionHtml: row.description ? await marked.parse(row.description, { breaks: true }) : "",
-				url: row.url?.trim() || "",
+				url: row.url?.trim() || ""
 			};
 		}),
 	);

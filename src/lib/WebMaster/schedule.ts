@@ -43,9 +43,11 @@ export class ScheduleDuration {
 			this.minutes = minutes || 0;
 		}
 
-		if (this.hours < 0) this.hours = 0;
+		if (this.hours < 0) 
+			this.hours = 0;
 
-		if (this.minutes < 0) this.minutes = 0;
+		if (this.minutes < 0) 
+			this.minutes = 0;
 		else if (this.minutes >= 60) {
 			this.hours += Math.floor(this.minutes / 60);
 			this.minutes = this.minutes % 60;
@@ -53,8 +55,10 @@ export class ScheduleDuration {
 	}
 
 	toString(): string {
-		if (this.hours === 0) return `PT${this.minutes}M`;
-		else if (this.minutes === 0) return `PT${this.hours}H`;
+		if (this.hours === 0) 
+			return `PT${this.minutes}M`;
+		else if (this.minutes === 0) 
+			return `PT${this.hours}H`;
 		return `PT${this.hours}H${this.minutes}M`;
 	}
 }
@@ -63,7 +67,8 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 	try {
 		const response: Response = await fetch(getSheetUrl("schedule"));
 
-		if (!response.ok) throw new Error("Google Sheet fetch failed");
+		if (!response.ok) 
+			throw new Error("Google Sheet fetch failed");
 		const csvText: string = await response.text();
 		const parsedData: Papa.ParseResult<ScheduleEntryUnprocessed> = Papa.parse(csvText, {
 			header: true,

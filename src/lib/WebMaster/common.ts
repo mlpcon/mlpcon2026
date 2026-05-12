@@ -13,6 +13,7 @@ export function getSheetUrl(sheet: Sheet): URL {
 	const sheetUrl: URL = new URL(BASE_URL);
 	sheetUrl.searchParams.set("gid", SheetIdMap[sheet].toString());
 
-	if (CACHEBUST) sheetUrl.searchParams.set("cachebust", Date.now().toString());
+	if (CACHEBUST) 
+		sheetUrl.searchParams.set("cachebust", Date.now().toString());
 	return sheetUrl;
 }
