@@ -15,10 +15,7 @@ export async function getVendors(): Promise<Array<Vendor>> {
 		header: true,
 		skipEmptyLines: true,
 	});
-
 	const rows: Array<any> = parsedData.data as Array<any>;
-
-	// Wrapped in Promise.all and using an async map to satisfy TypeScript
 	const vendors: Array<Vendor> = await Promise.all(
 		rows.map(async (row: any) => {
 			return {
