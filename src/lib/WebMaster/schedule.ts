@@ -74,7 +74,7 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 			parsedData.data.map(async (entry: ScheduleEntryUnprocessed) => {
 				return {
 					...entry,
-					description: entry.description ? await marked.parse(entry.description) : "",
+					description: entry.description ? await marked.parse(entry.description, { breaks: true }) : "",
 					duration: new ScheduleDuration(entry.duration),
 				};
 			}),
