@@ -14,12 +14,6 @@ export interface ScheduleEntry extends ScheduleEntryUnprocessed {
 	duration: ScheduleDuration;
 }
 
-export interface ScheduleMetadata {
-	threadId?: string;
-	panelFormUrl?: string;
-	vendorFormUrl?: string;
-}
-
 export class ScheduleDuration {
 	hours: number = 0;
 	minutes: number = 0;
@@ -86,37 +80,5 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 	} catch (err) {
 		console.error("Schedule Error:", err);
 		return [];
-	}
-}
-
-export async function getMetadata(): Promise<ScheduleMetadata> {
-	const META_URL: string = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ5qqmI3pg5pJEcyBfQtrFqMJ7Bb5nEDjOIIgfqZ5_L9KEjDdOWnN-7O4KyrOW4_KCXDIVh-VAClPP/pub?gid=625855329&output=csv&cachebust=${Date.now()}`;
-
-	try {
-		const response: Response = await fetch(META_URL);
-
-		if (!response.ok) throw new Error("Metadata fetch failed");
-
-		const csvText: string = await response.text();
-
-		// Standardized with PapaParse
-		const parsedData: Papa.ParseResult<{ key: string; value: string }> = Papa.parse(csvText, {
-			header: true,
-			skipEmptyLines: true,
-			transformHeader: (header: string) => header.trim(),
-		});
-
-		const records: Array<{ key: string; value: string }> = parsedData.data as Array<{ key: string; value: string }>;
-
-		return records.reduce<ScheduleMetadata>(
-			(acc: ScheduleMetadata, { key: key, value: value }) => ({
-				...acc,
-				[key?.trim()]: value?.trim(),
-			}),
-			{},
-		);
-	} catch (err) {
-		console.error("Metadata Error:", err);
-		return { threadId: "0", panelFormUrl: "", vendorFormUrl: "" };
 	}
 }

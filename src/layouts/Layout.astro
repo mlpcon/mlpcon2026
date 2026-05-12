@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import { Picture } from "astro:assets";
 import contardImg from "../assets/images/contard.png";
-import { getMetadata, type ScheduleMetadata } from "../lib/schedule";
+import { getMetadata, type Metadata } from "../lib/WebMaster/metadata";
 import { YEAR, NAME } from "../consts";
 
 interface Props {
@@ -13,10 +13,10 @@ interface Props {
 
 const { title, description = "An online con by and for the anons from /mlp/.", image = "/images/mlpcon26.png" }: Props = Astro.props;
 const canonicalUrl: URL = new URL(Astro.url.pathname, Astro.site || Astro.url);
-const metadata: ScheduleMetadata = await getMetadata();
+const metadata: Metadata = await getMetadata();
 const hasThread: boolean = !!(metadata.threadId && metadata.threadId !== "0");
-const hasPanelFormUrl: boolean = !!(metadata.panelFormUrl && metadata.panelFormUrl !== "");
-const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl && metadata.vendorFormUrl !== "");
+const hasPanelFormUrl: boolean = !!metadata.panelFormUrl;
+const hasVendorFormUrl: boolean = !!metadata.vendorFormUrl;
 
 const imageUrl: URL = new URL(image, Astro.url);
 const name: string = `${title} | ${NAME}`;
@@ -95,7 +95,7 @@ const linkedData = {
 						{
 							hasPanelFormUrl && (
 								<li>
-									<a href={metadata.panelFormUrl} target="_blank" rel="noopener noreferrer">
+									<a href={metadata.panelFormUrl?.toString()} target="_blank" rel="noopener noreferrer">
 										Host a Panel
 									</a>
 								</li>
@@ -104,7 +104,7 @@ const linkedData = {
 						{
 							hasVendorFormUrl && (
 								<li>
-									<a href={metadata.vendorFormUrl} target="_blank" rel="noopener noreferrer">
+									<a href={metadata.vendorFormUrl?.toString()} target="_blank" rel="noopener noreferrer">
 										Be a Vendor
 									</a>
 								</li>

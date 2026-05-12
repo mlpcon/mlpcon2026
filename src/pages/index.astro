@@ -1,18 +1,18 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { YEAR, NAME, DATES, DATES_ISO } from "../consts";
-import { getMetadata, type ScheduleMetadata } from "../lib/schedule";
+import { getMetadata, type Metadata } from "../lib/WebMaster/metadata";
 
-const metadata: ScheduleMetadata = await getMetadata();
+const metadata: Metadata = await getMetadata();
 const hasThread: boolean = !!(metadata.threadId && metadata.threadId !== "0");
-const hasPanelFormUrl: boolean = !!(metadata.panelFormUrl && metadata.panelFormUrl !== "");
-// const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl && metadata.vendorFormUrl !== "");
+const hasPanelFormUrl: boolean = !!metadata.panelFormUrl;
+// const hasVendorFormUrl: boolean = !!(metadata.vendorFormUrl);
 const priorYearsStart: number = 2020;
 const priorYearsEnd: number = YEAR - 1;
 
 const threadUrl: string = hasThread ? `https://boards.4chan.org/mlp/thread/${metadata.threadId}` : "";
 const panelFormSnippet: string = hasPanelFormUrl
-	? `If you have an idea for a panel, you can <a href="${metadata.panelFormUrl}" rel="external noopener" target="_blank">fill out the application form here.</a>`
+	? `If you have an idea for a panel, you can <a href="${metadata.panelFormUrl?.toString()}" rel="external noopener" target="_blank">fill out the application form here.</a>`
 	: "";
 const years: Array<number> = Array.from(new Array(priorYearsEnd - priorYearsStart + 1), (_, i) => priorYearsEnd - i);
 
