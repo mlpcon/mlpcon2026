@@ -80,9 +80,7 @@ function getCytubeUrl(channel: string): CytubeMetadata {
 												</a>
 											</span>
 										</div>
-										<p class="p-summary" itemprop="description">
-											{event.description}
-										</p>
+										<p class="p-summary" itemprop="description" set:html={event.description} />
 									</article>
 								);
 							})}

@@ -1,3 +1,4 @@
+import { marked } from "marked";
 import Papa from "papaparse";
 import { getSheetUrl } from "./common";
 
@@ -69,12 +70,15 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 			skipEmptyLines: true,
 			transformHeader: (header: string) => header.trim(),
 		});
-		return parsedData.data.map((entry: ScheduleEntryUnprocessed) => {
-			return {
-				...entry,
-				duration: new ScheduleDuration(entry.duration),
-			};
-		});
+		return await Promise.all(
+			parsedData.data.map(async (entry: ScheduleEntryUnprocessed) => {
+				return {
+					...entry,
+					description: entry.description ? await marked.parse(entry.description) : "",
+					duration: new ScheduleDuration(entry.duration),
+				};
+			}),
+		);
 	} catch (err) {
 		console.error("Schedule Error:", err);
 		return [];
