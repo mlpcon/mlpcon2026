@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { getSheetUrl } from "./common";
 
 interface ScheduleEntryUnprocessed {
 	title: string;
@@ -58,11 +59,8 @@ export class ScheduleDuration {
 }
 
 export async function getSchedule(): Promise<Array<ScheduleEntry>> {
-	const SHEET_URL: string = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ5qqmI3pg5pJEcyBfQtrFqMJ7Bb5nEDjOIIgfqZ5_L9KEjDdOWnN-7O4KyrOW4_KCXDIVh-VAClPP/pub?output=csv&cachebust=${Date.now()}`;
-	console.log("Fetching schedule from:", SHEET_URL);
-
 	try {
-		const response: Response = await fetch(SHEET_URL);
+		const response: Response = await fetch(getSheetUrl("schedule"));
 
 		if (!response.ok) throw new Error("Google Sheet fetch failed");
 		const csvText: string = await response.text();
