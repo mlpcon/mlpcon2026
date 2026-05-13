@@ -11,7 +11,7 @@ const SheetIdMap: Record<Sheet, number> = {
 	metadata: 625855329,
 };
 
-export function getSheetUrl(sheet: Sheet): URL {
+function getSheetUrl(sheet: Sheet): URL {
 	const sheetUrl: URL = new URL(BASE_URL);
 	sheetUrl.searchParams.set("gid", SheetIdMap[sheet].toString());
 
