@@ -1,0 +1,73 @@
+---
+import type { ScheduleEntry } from "../lib/WebMaster/schedule";
+
+export interface Props {
+	event: ScheduleEntry;
+}
+
+interface CytubeMetadata {
+	name: string;
+	url: string;
+}
+
+const event: ScheduleEntry = Astro.props.event;
+
+function getCytubeUrl(channel: string): CytubeMetadata {
+	switch (channel) {
+		case "1":
+			return { name: "CyTube 1", url: "//cytu.be/r/mlp-con" };
+		case "2":
+			return { name: "CyTube 2", url: "//cytu.be/r/mlp-con2" };
+		default:
+			return { name: channel, url: `//cytu.be/r/${channel}` };
+	}
+}
+
+const cytube: CytubeMetadata = getCytubeUrl(event.channel);
+---
+<article class="h-event schedule-item" itemscope itemtype="https://schema.org/Event">
+	<h4 class="p-name" itemprop="name">
+		{event.title}
+	</h4>
+	<div class="meta">
+		<time class="dt-start" datetime={event.startTime} itemprop="startDate">
+			{event.startTime}
+		</time>
+		Duration:
+		<time class="dt-duration" datetime={event.duration.toString()} itemprop="duration">
+			{event.duration.format()}
+		</time>
+	</div>
+	<div class="meta">
+		Streaming to
+		<span class="location">
+			<a href={cytube.url} itemprop="url" target="_blank" rel="external noopener">
+				{cytube.name}
+			</a>
+		</span>
+	</div>
+	<p class="p-summary" itemprop="description" set:html={event.description} />
+</article>
+<style>
+	.schedule-item {
+		background: rgba(255, 255, 255, 0.05);
+		border-left: 4px solid var(--color-grey);
+		padding: 1.5rem;
+		margin-bottom: 1rem;
+		text-align: left;
+	}
+	.meta {
+		font-size: 0.95rem;
+		color: var(--color-grey);
+		margin-bottom: 0.75rem;
+		font-weight: bold;
+	}
+	.meta span,
+	.meta time {
+		margin-right: 20px;
+	}
+	.p-summary {
+		line-height: 1.6;
+		margin: 0;
+	}
+</style>

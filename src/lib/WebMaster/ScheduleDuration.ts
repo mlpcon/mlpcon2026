@@ -36,6 +36,11 @@ export class ScheduleDuration {
 		}
 	}
 
+	format(): string {
+		const formatter: Intl.DurationFormat = new Intl.DurationFormat("en", { style: "long" });
+		return formatter.format({ hours: this.hours, minutes: this.minutes });
+	}
+
 	toString(): string {
 		if (this.hours === 0) 
 			return `PT${this.minutes}M`;
