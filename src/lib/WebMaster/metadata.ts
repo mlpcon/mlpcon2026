@@ -24,6 +24,6 @@ export async function getMetadata(): Promise<Metadata> {
 		}, {});
 	} catch (err) {
 		console.error("Metadata Error:", err);
-		return { threadId: "0" };
+		throw err;
 	}
 }

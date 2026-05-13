@@ -34,6 +34,6 @@ export async function getSheetData<T>(sheet: Sheet): Promise<Array<T>> {
 		return parsedData.data as Array<T>;
 	} catch (err: any) {
 		console.error(`Error fetching ${sheet} data:`, err);
-		return [];
+		throw err;
 	}
 }

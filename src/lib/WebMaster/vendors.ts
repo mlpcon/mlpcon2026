@@ -22,6 +22,6 @@ export async function getVendors(): Promise<Array<Vendor>> {
 		return vendors;
 	} catch (err: any) {
 		console.error("Vendors Error:", err);
-		return [];
+		throw err;
 	}
 }

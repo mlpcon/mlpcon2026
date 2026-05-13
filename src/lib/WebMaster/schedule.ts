@@ -30,6 +30,6 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 		);
 	} catch (err) {
 		console.error("Schedule Error:", err);
-		return [];
+		throw err;
 	}
 }
