@@ -1,6 +1,5 @@
 import { marked } from "marked";
-import Papa from "papaparse";
-import { getSheetUrl } from "./common";
+import { getSheetData } from "./common";
 
 export interface Vendor {
 	name: string;
@@ -9,23 +8,20 @@ export interface Vendor {
 }
 
 export async function getVendors(): Promise<Array<Vendor>> {
-	const response: Response = await fetch(getSheetUrl("vendors"));
-	const text: string = await response.text();
-	const parsedData: Papa.ParseResult<any> = Papa.parse(text, {
-		header: true,
-		skipEmptyLines: true,
-	});
-	const rows: Array<any> = parsedData.data as Array<any>;
-	const vendors: Array<Vendor> = await Promise.all(
-		rows.map(async (row: any) => {
-			return {
-				name: row.name?.trim() || "Unknown Vendor",
-				// Now the description can safely contain commas and newlines
-				descriptionHtml: row.description ? await marked.parse(row.description, { breaks: true }) : "",
-				url: row.url?.trim() || ""
-			};
-		}),
-	);
-
-	return vendors;
+	try {
+		const vendorsData: Array<any> = await getSheetData<any>("vendors");
+		const vendors: Array<Vendor> = await Promise.all(
+			vendorsData.map(async (row: any) => {
+				return {
+					name: row.name?.trim() || "Unknown Vendor",
+					descriptionHtml: row.description ? await marked.parse(row.description, { breaks: true }) : "",
+					url: row.url?.trim() || ""
+				};
+			}),
+		);
+		return vendors;
+	} catch (err: any) {
+		console.error("Vendors Error:", err);
+		return [];
+	}
 }

@@ -1,6 +1,5 @@
 import { marked } from "marked";
-import Papa from "papaparse";
-import { getSheetUrl } from "./common";
+import { getSheetData } from "./common";
 
 interface ScheduleEntryUnprocessed {
 	title: string;
@@ -65,24 +64,15 @@ export class ScheduleDuration {
 
 export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 	try {
-		const response: Response = await fetch(getSheetUrl("schedule"));
-
-		if (!response.ok) 
-			throw new Error("Google Sheet fetch failed");
-		const csvText: string = await response.text();
-		const parsedData: Papa.ParseResult<ScheduleEntryUnprocessed> = Papa.parse(csvText, {
-			header: true,
-			skipEmptyLines: true,
-			transformHeader: (header: string) => header.trim(),
-		});
+		const scheduleData: Array<ScheduleEntryUnprocessed> = await getSheetData<ScheduleEntryUnprocessed>("schedule");
 		return await Promise.all(
-			parsedData.data.map(async (entry: ScheduleEntryUnprocessed) => {
+			scheduleData.map(async (entry: ScheduleEntryUnprocessed) => {
 				return {
 					...entry,
 					description: entry.description ? await marked.parse(entry.description, { breaks: true }) : "",
 					duration: new ScheduleDuration(entry.duration),
 				};
-			}),
+			})
 		);
 	} catch (err) {
 		console.error("Schedule Error:", err);
