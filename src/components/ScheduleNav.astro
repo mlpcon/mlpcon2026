@@ -1,0 +1,33 @@
+---
+const currentPath: string = Astro.url.pathname;
+---
+<p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p>
+<p>
+	See the schedule in <a href="//docs.google.com/spreadsheets/d/1RYx3sVxTTk8YV-xpkJSsL1aqW0I3uF6yBACnnZGZExw/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">spreadsheet form here.</a>
+</p>
+<nav class="schedule-nav">
+	<a href="/schedule" class={currentPath === "/schedule" ? "active" : ""}>List View</a>
+	<a href="/schedule/graph" class={currentPath === "/schedule/graph" ? "active" : ""}>Full Grid</a>
+	<a href="/schedule/graph-simplified" class={currentPath === "/schedule/graph-simplified" ? "active" : ""}>Simplified Grid</a>
+</nav>
+
+<style>
+	.schedule-nav {
+		display: flex;
+		gap: 1rem;
+		margin-bottom: 2rem;
+		background: rgba(0,0,0,0.2);
+		padding: 0.5rem;
+		border-radius: 8px;
+	}
+	.schedule-nav a {
+		padding: 0.5rem 1rem;
+		text-decoration: none;
+		border-radius: 4px;
+		color: white;
+	}
+	.schedule-nav a.active {
+		background: rgba(255, 255, 255, 0.2);
+		font-weight: bold;
+	}
+</style>

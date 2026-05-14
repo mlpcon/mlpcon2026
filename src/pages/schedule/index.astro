@@ -1,10 +1,10 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import ScheduleCard from "../components/ScheduleCard.astro";
-import { getSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
+import Layout from "../../layouts/Layout.astro";
+import ScheduleCard from "../../components/ScheduleCard.astro";
+import ScheduleNav from "../../components/ScheduleNav.astro";
+import { getSchedule, type ScheduleEntry } from "../../lib/WebMaster/schedule";
 
 const schedule: Array<ScheduleEntry> = await getSchedule();
-
 const groupedSchedule: Record<string, Array<ScheduleEntry>> = schedule.reduce(
 	(groups: Record<string, Array<ScheduleEntry>>, entry: ScheduleEntry) => {
 		const day: string = entry.day || "TBD";
@@ -16,18 +16,12 @@ const groupedSchedule: Record<string, Array<ScheduleEntry>> = schedule.reduce(
 	},
 	{} as Record<string, Array<ScheduleEntry>>,
 );
-
-// We define the order explicitly since Object.keys can be unpredictable
 const dayOrder: Array<string> = ["Friday", "Saturday", "Sunday"];
 ---
 
 <Layout title="Schedule" description="See the schedule for /mlp/ con 2026! Don't suffer from FOMO, be sure to catch your favorites.">
 	<h2>Event Schedule</h2>
-	<p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p>
-	<p>
-		See the schedule in <a href="//docs.google.com/spreadsheets/d/1RYx3sVxTTk8YV-xpkJSsL1aqW0I3uF6yBACnnZGZExw/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">spreadsheet form here.</a>
-	</p>
-
+	<ScheduleNav />
 	<div class="schedule-container">
 		{
 			dayOrder.map(

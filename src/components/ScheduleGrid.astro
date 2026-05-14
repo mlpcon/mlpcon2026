@@ -1,0 +1,194 @@
+---
+import type { ScheduleEntry } from "../lib/WebMaster/schedule";
+
+export interface Props {
+	events: Array<ScheduleEntry>;
+	groupBy: "platform" | "channel";
+}
+
+interface ScheduleEntryParsed extends ScheduleEntry {
+	startMs: number;
+	durMins: number;
+	endMs: number;
+}
+
+interface EventPlacement {
+	event: ScheduleEntryParsed;
+	rowStart: number;
+	rowSpan: number;
+	colStart: number;
+}
+
+interface HeaderPlacement {
+	name: string;
+	colStart: number;
+	colSpan: number;
+}
+
+const { events, groupBy }: Props = Astro.props;
+
+if (events.length === 0)
+	return;
+
+// 1. Calculate absolute Start and End times in milliseconds for every event
+const parsedEvents = events.map((e: ScheduleEntry): ScheduleEntryParsed => {
+	const startMs: number = new Date(e.startTime).getTime();
+	const durMins: number = (e.duration.hours * 60) + e.duration.minutes;
+	const endMs: number = startMs + (durMins * 60000);
+	return { ...e, startMs, durMins, endMs };
+});
+
+// 2. Determine the bounds of the entire grid for this day
+const minStart: number = Math.min(...parsedEvents.map((e) => e.startMs));
+const maxEnd: number = Math.max(...parsedEvents.map((e) => e.endMs));
+
+// Round down to nearest 15 minutes for the top row
+const gridStart: Date = new Date(minStart);
+gridStart.setMinutes(Math.floor(gridStart.getMinutes() / 15) * 15, 0, 0);
+
+// Round up to nearest 15 minutes for the bottom row
+const gridEnd: Date = new Date(maxEnd);
+gridEnd.setMinutes(Math.ceil(gridEnd.getMinutes() / 15) * 15, 0, 0);
+
+// 3. Create the Time Labels for the Y-Axis
+const totalIntervals: number = (gridEnd.getTime() - gridStart.getTime()) / (15 * 60000);
+const timeLabels: Array<string> = [];
+
+for (let i: number = 0; i <= totalIntervals; i++) {
+	timeLabels.push(new Date(gridStart.getTime() + (i * 15 * 60000)).toISOString());
+}
+
+// 4. The Collision Engine: Group by column, assign lanes
+const groups: Array<string> = Array.from<string>(new Set<string>(parsedEvents.map<string>((e: ScheduleEntryParsed) => e[groupBy]))).sort();
+
+let currentColOffset: number = 2; // Column 1 is strictly for Time labels
+const headerPlacements: Array<HeaderPlacement> = [];
+const eventPlacements: Array<EventPlacement> = [];
+
+groups.forEach((groupName: string) => {
+	// Sort chronologically to correctly assign lanes
+	const groupEvents: Array<ScheduleEntryParsed> = parsedEvents
+		.filter((e: ScheduleEntryParsed) => e[groupBy] === groupName)
+		.sort((a: ScheduleEntryParsed, b: ScheduleEntryParsed) => a.startMs - b.startMs);
+	
+	// Array tracking the "end time" of the last event placed in each lane
+	const lanes: Array<number> = []; 
+	
+	groupEvents.forEach((event: ScheduleEntryParsed) => {
+		let placedLane: number = -1;
+		
+		// Try to find an existing lane where the previous event has already ended
+		for (let i: number = 0; i < lanes.length; i++) {
+			if (event.startMs >= lanes[i]) {
+				lanes[i] = event.endMs; // Update lane's end time
+				placedLane = i;
+				break;
+			}
+		}
+		
+		// If it collides with all existing lanes, spawn a new lane!
+		if (placedLane === -1) {
+			lanes.push(event.endMs);
+			placedLane = lanes.length - 1;
+		}
+		
+		// Calculate precise CSS Grid coordinates
+		const rowStart: number = Math.round((event.startMs - gridStart.getTime()) / (15 * 60000)) + 2;
+		const rowSpan: number = Math.max(1, Math.round(event.durMins / 15));
+		const colStart: number = currentColOffset + placedLane;
+		
+		eventPlacements.push({ event, rowStart, rowSpan, colStart });
+	});
+	
+	// Register the Header. If there were collisions, colSpan will make it stretch over all sub-lanes!
+	headerPlacements.push({
+		name: groupName,
+		colStart: currentColOffset,
+		colSpan: lanes.length
+	});
+	
+	// Advance the global column counter by however many lanes this group needed
+	currentColOffset += lanes.length; 
+});
+
+const totalCols: number = currentColOffset - 1;
+const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+---
+
+<div class="schedule-grid-wrapper" style={`--num-cols: ${totalCols - 1}; --num-rows: ${totalIntervals};`}>
+	
+	<div class="grid-cell corner">Time</div>
+
+	{headerPlacements.map((header: HeaderPlacement) => (
+		<div 
+			class="grid-cell header" 
+			style={`grid-column: ${header.colStart} / span ${header.colSpan}; grid-row: 1;`}
+		>
+			{header.name}
+		</div>
+	))}
+
+	{timeLabels.map((isoTime: string, index: number) => (
+		<div class="grid-cell time-label" style={`grid-column: 1; grid-row: ${index + 2};`}>
+			<time class="grid-dt" datetime={isoTime}>{formatter.format(new Date(isoTime))}</time>
+		</div>
+	))}
+
+	{eventPlacements.map(({ event, rowStart, rowSpan, colStart }: EventPlacement) => (
+		<div 
+			class={`grid-event event-color-${event.channel}`} 
+			style={`grid-column: ${colStart}; grid-row: ${rowStart} / span ${rowSpan};`}
+		>
+			<strong>{event.title}</strong>
+		</div>
+	))}
+</div>
+
+<style>
+	.schedule-grid-wrapper {
+		display: grid;
+		grid-template-columns: 80px repeat(var(--num-cols), 1fr);
+		grid-template-rows: auto repeat(var(--num-rows), 30px);
+		gap: 2px;
+		background-color: rgba(255, 255, 255, 0.1); 
+		border: 2px solid rgba(255, 255, 255, 0.1);
+		border-radius: 8px;
+		overflow-x: auto; 
+		margin-bottom: 3rem;
+	}
+
+	.grid-cell {
+		background-color: var(--color-dark, #1a1a1a);
+		padding: 0.25rem;
+		font-size: 0.8rem;
+		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.header {
+		font-weight: bold;
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+
+	.time-label {
+		color: var(--color-grey, #aaa);
+		border-right: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.grid-event {
+		padding: 0.5rem;
+		border-radius: 4px;
+		font-size: 0.85rem;
+		line-height: 1.2;
+		overflow: hidden;
+		background-color: #333; /* Default fallback */
+		color: #fff;
+		border-left: 4px solid rgba(255,255,255,0.5);
+	}
+
+	/* Optional: Color code by channel! */
+	.event-color-1 { background-color: #b4a7d6; color: #000; }
+	.event-color-2 { background-color: #9fc5e8; color: #000; }
+</style>
