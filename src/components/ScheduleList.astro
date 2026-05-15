@@ -1,0 +1,71 @@
+---
+import ScheduleCard from "./ScheduleCard.astro";
+import ScheduleNav from "./ScheduleNav.astro";
+import { getSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
+
+export interface Props {
+	groupedSchedule: Record<string, Array<ScheduleEntry>>;
+	dayOrder: Array<string>;
+}
+
+const { groupedSchedule, dayOrder }: Props = Astro.props;
+---
+<div class="schedule-container">
+	{
+		dayOrder.map(
+			(dayName: string) =>
+				groupedSchedule[dayName] && (
+					<section class="day-group">
+						<header class="day-header">
+							<h3 class="p-name">{dayName}</h3>
+						</header>
+
+						{groupedSchedule[dayName].map((event: ScheduleEntry) => (
+							<ScheduleCard event={event} />
+						))}
+					</section>
+				),
+		)
+	}
+</div>
+
+<script>
+	(function (): void {
+		function localizeTimes(): void {
+			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
+				day: "numeric",
+				hour: "numeric",
+				minute: "2-digit",
+				month: "long",
+				timeZoneName: "short",
+				weekday: "long",
+			});
+
+			document.querySelectorAll(".dt-start").forEach((time: Element) => {
+				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
+
+				if (timeEl.dateTime) {
+					// Handles space-separated date strings correctly
+					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
+					timeEl.textContent = formatter.format(parsedDate);
+				}
+			});
+		}
+
+		if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined")
+			localizeTimes();
+	})();
+</script>
+<style>
+	.day-header {
+		background-color: var(--color-blurple);
+		padding: 0.5rem 1.5rem;
+		margin: 2.5rem 0 1.5rem 0;
+		border-radius: 4px;
+	}
+	.day-header h2 {
+		margin: 0;
+		font-size: 1.8rem;
+		color: var(--color-light);
+	}
+</style>

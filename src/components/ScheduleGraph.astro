@@ -5,59 +5,42 @@ import ScheduleGrid from "./ScheduleGrid.astro";
 import { getSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
 
 export interface Props {
-	title: string;
 	groupBy: "platform" | "channel";
+	groupedSchedule: Record<string, Array<ScheduleEntry>>;
+	dayOrder: Array<string>;
 }
 
-const { title, groupBy }: Props = Astro.props;
-const schedule: Array<ScheduleEntry> = await getSchedule();
-const groupedSchedule: Record<string, Array<ScheduleEntry>> = schedule.reduce(
-	(groups: Record<string, Array<ScheduleEntry>>, entry: ScheduleEntry) => {
-		const day: string = entry.day || "TBD";
-
-		if (!groups[day]) 
-			groups[day] = [];
-		groups[day].push(entry);
-		return groups;
-	},
-	{} as Record<string, Array<ScheduleEntry>>,
-);
-const dayOrder: Array<string> = ["Friday", "Saturday", "Sunday"];
+const { groupBy, groupedSchedule, dayOrder }: Props = Astro.props;
 ---
-<Layout title="Full Grid Schedule">
-	<h2>Event Schedule</h2>
-	<ScheduleNav />
-	
-	<div class="schedule-container">
-		{dayOrder.map((dayName: string) =>
-			groupedSchedule[dayName] && (
-				<section class="day-group">
-					<h3 class="p-name">{dayName}</h3>
-					<ScheduleGrid events={groupedSchedule[dayName]} groupBy={groupBy} />
-				</section>
-			)
-		)}
-	</div>
-	<script>
-		(function (): void {
-			function localizeGridTimes(): void {
-				const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
-					hour: "numeric",
-					minute: "2-digit"
-				});
+<div class="schedule-container">
+	{dayOrder.map((dayName: string) =>
+		groupedSchedule[dayName] && (
+			<section class="day-group">
+				<h3 class="p-name">{dayName}</h3>
+				<ScheduleGrid events={groupedSchedule[dayName]} groupBy={groupBy} />
+			</section>
+		)
+	)}
+</div>
+<script>
+	(function (): void {
+		function localizeGridTimes(): void {
+			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
+				hour: "numeric",
+				minute: "2-digit"
+			});
 
-				document.querySelectorAll(".grid-dt").forEach((time: Element) => {
-					const timeEl: HTMLTimeElement = time as HTMLTimeElement;
+			document.querySelectorAll(".grid-dt").forEach((time: Element) => {
+				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
 
-					if (timeEl.dateTime) {
-						const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
-						timeEl.textContent = formatter.format(parsedDate);
-					}
-				});
-			}
+				if (timeEl.dateTime) {
+					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
+					timeEl.textContent = formatter.format(parsedDate);
+				}
+			});
+		}
 
-			if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined")
-				localizeGridTimes();
-		})();
-	</script>
-</Layout>
+		if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined")
+			localizeGridTimes();
+	})();
+</script>

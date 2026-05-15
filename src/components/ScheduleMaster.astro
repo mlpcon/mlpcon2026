@@ -1,0 +1,32 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ScheduleGraph from "./ScheduleGraph.astro";
+import ScheduleList from "./ScheduleList.astro";
+import ScheduleNav from "./ScheduleNav.astro";
+import { getSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
+
+export interface Props {
+	view: "list" | "grid-platform" | "grid-channel";
+}
+
+const { view }: Props = Astro.props;
+const schedule: Array<ScheduleEntry> = await getSchedule();
+const groupedSchedule: Record<string, Array<ScheduleEntry>> = schedule.reduce(
+	(groups: Record<string, Array<ScheduleEntry>>, entry: ScheduleEntry) => {
+		const day: string = entry.day || "TBD";
+
+		if (!groups[day]) 
+			groups[day] = [];
+		groups[day].push(entry);
+		return groups;
+	},
+	{} as Record<string, Array<ScheduleEntry>>,
+);
+const dayOrder: Array<string> = ["Friday", "Saturday", "Sunday"];
+---
+<Layout title="Schedule" description="See the schedule for /mlp/ con 2026! Don't suffer from FOMO, be sure to catch your favorites.">
+	<h2>Event Schedule</h2>
+	<ScheduleNav />
+	{view === "list" && <ScheduleList groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
+	{view !== "list" && <ScheduleGraph groupBy={view === "grid-platform" ? "platform" : "channel"} groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
+</Layout>
