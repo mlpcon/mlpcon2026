@@ -25,3 +25,4 @@ pnpm-debug.log*
 
 # Ignore Windows NTFS Alternative Data Streams (Zone.Identifier files)
 *:Zone.Identifier
+repomix-output.xml
