@@ -1,7 +1,6 @@
 ---
 import ScheduleCard from "./ScheduleCard.astro";
-import ScheduleNav from "./ScheduleNav.astro";
-import { getSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
+import { type ScheduleEntry } from "../lib/WebMaster/schedule";
 
 export interface Props {
 	groupedSchedule: Record<string, Array<ScheduleEntry>>;
@@ -28,34 +27,6 @@ const { groupedSchedule, dayOrder }: Props = Astro.props;
 		)
 	}
 </div>
-
-<script>
-	(function (): void {
-		function localizeTimes(): void {
-			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
-				day: "numeric",
-				hour: "numeric",
-				minute: "2-digit",
-				month: "long",
-				timeZoneName: "short",
-				weekday: "long",
-			});
-
-			document.querySelectorAll(".dt-start").forEach((time: Element) => {
-				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
-
-				if (timeEl.dateTime) {
-					// Handles space-separated date strings correctly
-					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
-					timeEl.textContent = formatter.format(parsedDate);
-				}
-			});
-		}
-
-		if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined")
-			localizeTimes();
-	})();
-</script>
 <style>
 	.day-header {
 		background-color: var(--color-blurple);

@@ -1,8 +1,6 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import ScheduleNav from "./ScheduleNav.astro";
 import ScheduleGrid from "./ScheduleGrid.astro";
-import { getSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
+import { type ScheduleEntry } from "../lib/WebMaster/schedule";
 
 export interface Props {
 	groupBy: "platform" | "channel";
@@ -22,25 +20,3 @@ const { groupBy, groupedSchedule, dayOrder }: Props = Astro.props;
 		)
 	)}
 </div>
-<script>
-	(function (): void {
-		function localizeGridTimes(): void {
-			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
-				hour: "numeric",
-				minute: "2-digit"
-			});
-
-			document.querySelectorAll(".grid-dt").forEach((time: Element) => {
-				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
-
-				if (timeEl.dateTime) {
-					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
-					timeEl.textContent = formatter.format(parsedDate);
-				}
-			});
-		}
-
-		if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined")
-			localizeGridTimes();
-	})();
-</script>

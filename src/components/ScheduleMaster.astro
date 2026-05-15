@@ -30,3 +30,48 @@ const dayOrder: Array<string> = ["Friday", "Saturday", "Sunday"];
 	{view === "list" && <ScheduleList groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
 	{view !== "list" && <ScheduleGraph groupBy={view === "grid-platform" ? "platform" : "channel"} groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
 </Layout>
+<script>
+	(function (): void {
+		function localizeListTimes(): void {
+			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
+				day: "numeric",
+				hour: "numeric",
+				minute: "2-digit",
+				month: "long",
+				timeZoneName: "short",
+				weekday: "long",
+			});
+
+			document.querySelectorAll(".dt-start").forEach((time: Element) => {
+				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
+
+				if (timeEl.dateTime) {
+					// Handles space-separated date strings correctly
+					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
+					timeEl.textContent = formatter.format(parsedDate);
+				}
+			});
+		}
+
+		function localizeGridTimes(): void {
+			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
+				hour: "numeric",
+				minute: "2-digit"
+			});
+
+			document.querySelectorAll(".grid-dt").forEach((time: Element) => {
+				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
+
+				if (timeEl.dateTime) {
+					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
+					timeEl.textContent = formatter.format(parsedDate);
+				}
+			});
+		}
+
+		if (typeof Intl !== "undefined" && typeof Intl.DateTimeFormat !== "undefined") {
+			localizeListTimes();
+			localizeGridTimes();
+		}
+	})();
+</script>
