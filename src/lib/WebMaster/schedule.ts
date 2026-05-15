@@ -16,6 +16,23 @@ export interface ScheduleEntry extends ScheduleEntryUnprocessed {
 	duration: ScheduleDuration;
 }
 
+export const DAY_ORDER: Array<string> = ["Friday", "Saturday", "Sunday"];
+
+export async function getGroupedSchedule(): Promise<Record<string, Array<ScheduleEntry>>> {
+	const schedule: Array<ScheduleEntry> = await getSchedule();
+	return schedule.reduce(
+		(groups: Record<string, Array<ScheduleEntry>>, entry: ScheduleEntry) => {
+			const day: string = entry.day || "TBD";
+
+			if (!groups[day]) 
+				groups[day] = [];
+			groups[day].push(entry);
+			return groups;
+		},
+		{} as Record<string, Array<ScheduleEntry>>,
+	);
+}
+
 export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 	try {
 		const scheduleData: Array<ScheduleEntryUnprocessed> = await getSheetData<ScheduleEntryUnprocessed>("schedule");
