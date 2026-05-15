@@ -20,6 +20,13 @@ const groupedSchedule: Record<string, Array<ScheduleEntry>> = await getGroupedSc
 </Layout>
 <script>
 	(function (): void {
+		function formatTimeElement(timeElement: HTMLTimeElement, formatter: Intl.DateTimeFormat): void {
+			if (timeElement.dateTime) {
+				const parsedDate: Date = new Date(timeElement.dateTime.replace(" ", "T"));
+				timeElement.textContent = formatter.format(parsedDate);
+			}
+		}
+
 		function localizeListTimes(): void {
 			const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
 				day: "numeric",
@@ -31,13 +38,7 @@ const groupedSchedule: Record<string, Array<ScheduleEntry>> = await getGroupedSc
 			});
 
 			document.querySelectorAll(".dt-start").forEach((time: Element) => {
-				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
-
-				if (timeEl.dateTime) {
-					// Handles space-separated date strings correctly
-					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
-					timeEl.textContent = formatter.format(parsedDate);
-				}
+				formatTimeElement(time as HTMLTimeElement, formatter);
 			});
 		}
 
@@ -48,12 +49,7 @@ const groupedSchedule: Record<string, Array<ScheduleEntry>> = await getGroupedSc
 			});
 
 			document.querySelectorAll(".grid-dt").forEach((time: Element) => {
-				const timeEl: HTMLTimeElement = time as HTMLTimeElement;
-
-				if (timeEl.dateTime) {
-					const parsedDate: Date = new Date(timeEl.dateTime.replace(" ", "T"));
-					timeEl.textContent = formatter.format(parsedDate);
-				}
+				formatTimeElement(time as HTMLTimeElement, formatter);
 			});
 		}
 
