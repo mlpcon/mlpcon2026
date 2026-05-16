@@ -1,28 +1,12 @@
 ---
 import type { ScheduleEntry } from "../lib/WebMaster/schedule";
+import { getCytubeUrl, type CytubeMetadata } from "../lib/cytube";
 
 export interface Props {
 	event: ScheduleEntry;
 }
 
-interface CytubeMetadata {
-	name: string;
-	url: string;
-}
-
 const event: ScheduleEntry = Astro.props.event;
-
-function getCytubeUrl(channel: string): CytubeMetadata {
-	switch (channel) {
-		case "1":
-			return { name: "CyTube 1", url: "//cytu.be/r/mlp-con" };
-		case "2":
-			return { name: "CyTube 2", url: "//cytu.be/r/mlp-con2" };
-		default:
-			return { name: channel, url: `//cytu.be/r/${channel}` };
-	}
-}
-
 const cytube: CytubeMetadata = getCytubeUrl(event.channel);
 ---
 <article class="h-event schedule-item" itemscope itemtype="https://schema.org/Event">
