@@ -1,0 +1,17 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Server Webhook
+        run: |
+          curl -X POST https://mlpcon.online/webhook \
+               -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -d '{"source": "github_push"}'
