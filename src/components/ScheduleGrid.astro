@@ -1,5 +1,6 @@
 ---
 import type { ScheduleEntry } from "../lib/WebMaster/schedule";
+import { getCytubeUrl, type CytubeMetadata } from "../lib/cytube";
 
 export interface Props {
 	events: Array<ScheduleEntry>;
@@ -23,6 +24,15 @@ interface HeaderPlacement {
 	name: string;
 	colStart: number;
 	colSpan: number;
+}
+
+interface ModalPayload {
+	title: string;
+	description: string;
+	startTime: string;
+	endTime: string;
+	channelName: string;
+	channelUrl: string;
 }
 
 const { events, groupBy }: Props = Astro.props;
@@ -134,14 +144,22 @@ const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", { hour: 
 		</div>
 	))}
 
-	{eventPlacements.map(({ event, rowStart, rowSpan, colStart }: EventPlacement) => (
-		<div 
-			class={`grid-event event-color-${event.channel}`} 
-			style={`grid-column: ${colStart}; grid-row: ${rowStart} / span ${rowSpan};`}
-		>
-			<strong>{event.title}</strong>
-		</div>
-	))}
+	{eventPlacements.map(({ event, rowStart, rowSpan, colStart }: EventPlacement) => {
+		const cytube: CytubeMetadata = getCytubeUrl(event.channel);
+		const modalPayload: ModalPayload = {
+			title: event.title,
+			description: event.description,
+			startTime: new Date(event.startMs).toISOString(),
+			endTime: new Date(event.endMs).toISOString(),
+			channelName: cytube.name,
+			channelUrl: cytube.url
+		};
+		return (
+			<button class={`grid-event event-color-${event.channel}`} style={`grid-column: ${colStart}; grid-row: ${rowStart} / span ${rowSpan};`} data-modal-payload={JSON.stringify(modalPayload)} aria-haspopup="dialog">
+				<strong>{event.title}</strong>
+			</button>
+		)
+	})}
 </div>
 
 <style>
@@ -178,6 +196,7 @@ const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", { hour: 
 	}
 
 	.grid-event {
+		border: none;
 		padding: 0.5rem;
 		border-radius: 4px;
 		font-size: 0.85rem;
@@ -186,6 +205,8 @@ const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", { hour: 
 		background-color: #333; /* Default fallback */
 		color: #fff;
 		border-left: 4px solid rgba(255,255,255,0.5);
+		text-align: left;
+		cursor: pointer;
 	}
 
 	/* Optional: Color code by channel! */

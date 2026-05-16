@@ -1,0 +1,104 @@
+<dialog id="event-modal" class="event-modal">
+	<div class="modal-content">
+		<button id="close-modal" class="close-btn" aria-label="Close modal">&times;</button>
+		
+		<h3 id="modal-title" class="p-name">Event Title</h3>
+		
+		<div class="modal-meta">
+			<p>
+				<strong>Time:</strong> 
+				<time id="modal-time"></time>
+			</p>
+			<p>
+				<strong>Streaming to:</strong> 
+				<a id="modal-location" href="#" target="_blank" rel="external noopener">Channel</a>
+			</p>
+		</div>
+		
+		<hr />
+		
+		<div id="modal-description" class="p-summary"></div>
+	</div>
+</dialog>
+<script>
+	(function (): void {
+		const dialog: HTMLDialogElement | null = document.getElementById("event-modal") as HTMLDialogElement;
+		const closeBtn: HTMLElement | null = document.getElementById("close-modal");
+		
+		if (dialog && closeBtn) {
+			const startFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], { weekday: "long", hour: "numeric", minute: "2-digit" });
+			const endFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+			document.querySelectorAll<HTMLButtonElement>(".grid-event").forEach((btn: HTMLButtonElement) => {
+				btn.addEventListener("click", (): void => {
+					const payloadStr: string | null = btn.getAttribute("data-modal-payload");
+
+					if (!payloadStr) 
+						return;
+					const payload = JSON.parse(payloadStr);
+					(document.getElementById("modal-title") as HTMLElement).textContent = payload.title;
+					const locationEl: HTMLAnchorElement = document.getElementById("modal-location") as HTMLAnchorElement;
+					locationEl.textContent = payload.channelName;
+					locationEl.href = payload.channelUrl;
+					(document.getElementById("modal-description") as HTMLElement).innerHTML = payload.description || "<em>No description provided.</em>";
+					const startObj: Date = new Date(payload.startTime);
+					const endObj: Date = new Date(payload.endTime);
+					(document.getElementById("modal-time") as HTMLElement).textContent = `${startFormatter.format(startObj)} - ${endFormatter.format(endObj)}`;
+					dialog.showModal();
+				});
+			});
+			closeBtn.addEventListener("click", (): void => dialog.close());
+			dialog.addEventListener("click", (e: MouseEvent) => {
+				if (e.target === dialog) 
+					dialog.close();
+			});
+		}
+	})();
+</script>
+<style>
+	.event-modal {
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 12px;
+		padding: 0;
+		background-color: var(--color-bg, #1a1a1a);
+		color: var(--color-text, #ffffff);
+		max-width: 600px;
+		width: 90%;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	}
+	.event-modal::backdrop {
+		background: rgba(0, 0, 0, 0.7);
+		backdrop-filter: blur(3px);
+	}
+	.modal-content {
+		padding: 2rem;
+		position: relative;
+	}
+	.close-btn {
+		position: absolute;
+		top: 1rem;
+		right: 1.5rem;
+		background: none;
+		border: none;
+		color: inherit;
+		font-size: 2rem;
+		cursor: pointer;
+		line-height: 1;
+		opacity: 0.7;
+	}
+	.close-btn:hover {
+		opacity: 1;
+	}
+	.modal-meta {
+		background: rgba(255, 255, 255, 0.05);
+		padding: 1rem;
+		border-radius: 8px;
+		margin: 1.5rem 0;
+	}
+	.modal-meta p {
+		margin: 0.25rem 0;
+	}
+	.modal-content hr {
+		border-color: rgba(255, 255, 255, 0.1);
+		margin-bottom: 1.5rem;
+	}
+</style>

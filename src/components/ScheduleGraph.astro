@@ -1,5 +1,6 @@
 ---
 import ScheduleGrid from "./ScheduleGrid.astro";
+import ScheduleModal from "./ScheduleModal.astro";
 import { type ScheduleEntry } from "../lib/WebMaster/schedule";
 
 export interface Props {
@@ -20,3 +21,4 @@ const { groupBy, groupedSchedule, dayOrder }: Props = Astro.props;
 		)
 	)}
 </div>
+<ScheduleModal />
