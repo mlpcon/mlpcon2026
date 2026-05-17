@@ -14,7 +14,7 @@ const { groupedSchedule, dayOrder }: Props = Astro.props;
 		dayOrder.map(
 			(dayName: string) =>
 				groupedSchedule[dayName] && (
-					<section class="day-group">
+					<section id={dayName.toLowerCase()} class="day-group">
 						<header class="day-header">
 							<h3 class="p-name">{dayName}</h3>
 						</header>
@@ -28,6 +28,9 @@ const { groupedSchedule, dayOrder }: Props = Astro.props;
 	}
 </div>
 <style>
+	.day-group {
+		scroll-margin-top: 4.5rem; 
+	}
 	.day-header {
 		background-color: var(--color-blurple);
 		padding: 0.5rem 1.5rem;

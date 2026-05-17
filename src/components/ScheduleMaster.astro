@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import ScheduleDays from "./ScheduleDays.astro";
 import ScheduleGraph from "./ScheduleGraph.astro";
 import ScheduleList from "./ScheduleList.astro";
 import ScheduleNav from "./ScheduleNav.astro";
@@ -15,8 +16,10 @@ const groupedSchedule: Record<string, Array<ScheduleEntry>> = await getGroupedSc
 <Layout title="Schedule" description="See the schedule for /mlp/ con 2026! Don't suffer from FOMO, be sure to catch your favorites.">
 	<h2>Event Schedule</h2>
 	<ScheduleNav />
-	{view === "list" && <ScheduleList groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
-	{view !== "list" && <ScheduleGraph groupBy={view === "grid-platform" ? "platform" : "channel"} groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
+	<ScheduleDays dayOrder={dayOrder}>
+		{view === "list" && <ScheduleList groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
+		{view !== "list" && <ScheduleGraph groupBy={view === "grid-platform" ? "platform" : "channel"} groupedSchedule={groupedSchedule} dayOrder={dayOrder} />}
+	</ScheduleDays>
 </Layout>
 <script>
 	(function (): void {

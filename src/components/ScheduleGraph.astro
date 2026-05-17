@@ -14,7 +14,7 @@ const { groupBy, groupedSchedule, dayOrder }: Props = Astro.props;
 <div class="schedule-container">
 	{dayOrder.map((dayName: string) =>
 		groupedSchedule[dayName] && (
-			<section class="day-group">
+			<section id={dayName.toLowerCase()} class="day-group">
 				<h3 class="p-name">{dayName}</h3>
 				<ScheduleGrid events={groupedSchedule[dayName]} groupBy={groupBy} />
 			</section>
@@ -22,3 +22,8 @@ const { groupBy, groupedSchedule, dayOrder }: Props = Astro.props;
 	)}
 </div>
 <ScheduleModal />
+<style>
+	.day-group {
+		scroll-margin-top: 4.5rem; 
+	}
+</style>
