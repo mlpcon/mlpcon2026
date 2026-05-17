@@ -94,3 +94,45 @@ body {
 	padding: 40px;
 	text-align: center; /* Centers welcome text */
 }
+/* Mobile Responsive Rules */
+@media (max-width: 768px) {
+	.layout-wrapper {
+		/* Stacks the sidebar on top of the content */
+		flex-direction: column;
+	}
+
+	.sidebar {
+		/* Let the sidebar span the full width of the screen */
+		width: 100%;
+		/* Remove the right border and put it on the bottom instead */
+		border-right: none;
+		border-bottom: 2px solid #202225;
+		padding: 1rem;
+		box-sizing: border-box;
+	}
+
+	.sidebar img {
+		/* Optional: scale down the mascot slightly for mobile */
+		width: 100px;
+		height: auto;
+	}
+
+	.sidebar nav ul {
+		/* Turn the vertical list of links into a wrapping horizontal row */
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+
+	.sidebar nav ul li {
+		/* Remove the bottom margin since we are using gap now */
+		margin-bottom: 0;
+	}
+
+	.content {
+		/* Reduce the massive padding on mobile so content has room to breathe */
+		padding: 1.5rem;
+	}
+}
