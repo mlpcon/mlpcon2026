@@ -1,10 +1,10 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro";
 import ScheduleDays from "./Days.astro";
 import ScheduleGraph from "./Graph.astro";
 import ScheduleList from "./List.astro";
 import ScheduleNav from "./Nav.astro";
-import { DAY_ORDER as dayOrder, getGroupedSchedule, type ScheduleEntry } from "../lib/WebMaster/schedule";
+import { DAY_ORDER as dayOrder, getGroupedSchedule, type ScheduleEntry } from "../../lib/WebMaster/schedule";
 
 export interface Props {
 	view: "list" | "grid-platform" | "grid-channel";
