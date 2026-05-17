@@ -9,6 +9,7 @@ interface ScheduleEntryUnprocessed {
 	platform: string;
 	channel: string;
 	description: string;
+	rawDescription: string;
 	day: string;
 }
 
@@ -41,6 +42,7 @@ export async function getSchedule(): Promise<Array<ScheduleEntry>> {
 				return {
 					...entry,
 					description: entry.description ? await marked.parse(entry.description, { breaks: true }) : "",
+					rawDescription: entry.description || "",
 					duration: new ScheduleDuration(entry.duration),
 				};
 			})

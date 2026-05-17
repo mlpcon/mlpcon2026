@@ -8,7 +8,7 @@ export async function GET(): Promise<Response> {
 		title: entry.title,
 		startTime: entry.startTime, // e.g., "2026-06-26T14:00:00-04:00"
 		duration: entry.duration.toString(), // e.g., "PT1H"
-		description: entry.description,
+		description: entry.rawDescription,
 		channel: entry.channel, // Useful for filtering on CyTube's end
 	}));
 
