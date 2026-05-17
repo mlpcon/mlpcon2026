@@ -1,7 +1,7 @@
 ---
 const currentPath: string = Astro.url.pathname;
 ---
-<p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p>
+<noscript><p>All times will automatically convert to your local timezone if you've enabled JavaScript.</p></noscript>
 <nav class="schedule-nav">
 	<a href="/schedule" class={currentPath === "/schedule" ? "active" : ""}>List View</a>
 	<!--<a href="/schedule/graph" class={currentPath === "/schedule/graph" ? "active" : ""}>Full Grid</a>-->
