@@ -112,7 +112,7 @@ groups.forEach((groupName: string) => {
 	
 	// Register the Header. If there were collisions, colSpan will make it stretch over all sub-lanes!
 	headerPlacements.push({
-		name: groupName,
+		name: groupBy === "channel" ? getCytubeUrl(groupName).name : groupName,
 		colStart: currentColOffset,
 		colSpan: lanes.length
 	});
