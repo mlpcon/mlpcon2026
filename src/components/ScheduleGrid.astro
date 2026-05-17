@@ -69,7 +69,16 @@ for (let i: number = 0; i <= totalIntervals; i++) {
 }
 
 // 4. The Collision Engine: Group by column, assign lanes
-const groups: Array<string> = Array.from<string>(new Set<string>(parsedEvents.map<string>((e: ScheduleEntryParsed) => e[groupBy]))).sort();
+// Get the unique column names (e.g. "YouTube", "CyTube 1")
+const uniqueGroups: Array<string> = Array.from<string>(new Set<string>(parsedEvents.map((e: ScheduleEntryParsed) => e[groupBy])));
+
+// Sort them chronologically based on the earliest event in that group
+const groups: Array<string> = uniqueGroups.sort((groupA: string, groupB: string) => {
+	const firstEventA: number = Math.min(...parsedEvents.filter((e) => e[groupBy] === groupA).map((e) => e.startMs));
+	const firstEventB: number = Math.min(...parsedEvents.filter((e) => e[groupBy] === groupB).map((e) => e.startMs));
+	
+	return firstEventA - firstEventB;
+});
 
 let currentColOffset: number = 2; // Column 1 is strictly for Time labels
 const headerPlacements: Array<HeaderPlacement> = [];
