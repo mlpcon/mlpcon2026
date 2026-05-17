@@ -212,4 +212,38 @@ const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", { hour: 
 	/* Optional: Color code by channel! */
 	.event-color-1 { background-color: #b4a7d6; color: #000; }
 	.event-color-2 { background-color: #9fc5e8; color: #000; }
+
+	/* 📱 Mobile Responsive Grid Adjustments */
+	@media (max-width: 768px) {
+		.schedule-grid-wrapper {
+			-webkit-overflow-scrolling: touch; 
+		}
+
+		/* Forces the grid to stay wide enough so lanes don't crush together */
+		/* The wrapper will handle the horizontal scrolling automatically */
+		.schedule-grid-wrapper {
+			min-width: 800px;
+		}
+
+		/* Lock the left-hand Time column to the edge of the screen */
+		.time-label {
+			position: sticky;
+			left: 0;
+			/* Important: Z-index keeps it above the sliding event blocks */
+			z-index: 10; 
+			/* Ensures events slide UNDER the time labels, not through them */
+			background-color: var(--color-dark, #1a1a1a); 
+			/* Adds a subtle right border to show the separation from scrolling content */
+			border-right: 2px solid rgba(255, 255, 255, 0.2); 
+		}
+
+		/* Lock the top-left "Time" corner cell so it never scrolls away */
+		.corner {
+			position: sticky;
+			left: 0;
+			z-index: 11; /* Highest z-index so it stays above the scrolling headers too */
+			background-color: var(--color-dark, #1a1a1a);
+			border-right: 2px solid rgba(255, 255, 255, 0.2);
+		}
+	}
 </style>
